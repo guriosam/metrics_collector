@@ -14,6 +14,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import br.ufal.br.json.BugInfo;
 import br.ufal.ic.objects.Commit;
+import br.ufal.ic.objects.Metric;
 
 public class Reader {
 
@@ -91,4 +92,47 @@ public class Reader {
 		return bugs;
 	}
 
+	public void readMetricsCSV(String path){
+		List<Metric> metrics = new ArrayList<Metric>();
+		
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(path + "metrics.csv"));
+
+			// read file line by line
+			String line = reader.readLine();
+
+			if (line.contains("AvgCyclomatic")) {
+				line = reader.readLine();
+			}
+
+			while (line != null) {
+				String[] info = line.split(",");
+
+				Metric m = new Metric();
+				m.setKind(info[0]);
+				m.setFile(info[2]);
+				m.setName(info[1].replaceAll("\"", ""));
+				
+				System.out.println(m);
+				
+				line = reader.readLine();
+			}
+
+			reader.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		
+	}
+	
 }

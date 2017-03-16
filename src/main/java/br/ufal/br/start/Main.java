@@ -41,21 +41,14 @@ public class Main {
 		//for (Commit c : commits) {
 			//System.out.println("cd dengue_results_repo");
 			//System.out.println("git checkout " + c.getCommitHash());
-			String cmd = "git clone https://github.com/guriosam/aluno-03";
+			//String cmd = "git clone https://github.com/guriosam/aluno-03";
 			try {
-				Runtime run = Runtime.getRuntime();
+				//Runtime run = Runtime.getRuntime();
 			
-				Process pr = run.exec(cmd);
-				pr.waitFor();
-				BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-				String line = "";
-
-				while ((line = buf.readLine()) != null) {
-					System.out.println(line); // show any errors returned by the
-												// command executed on the error
-												// console
-				}
+				//Process pr = run.exec(cmd);
+				//pr.waitFor();
 				
+				jr.readMetricsCSV("");
 				/*System.out.println("cd ..");
 
 				System.out.println("cd ufal1_results_repo");
