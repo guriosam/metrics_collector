@@ -21,6 +21,7 @@ public class BugInfo {
 	@SerializedName("elements")
 	private List<String> elements;
 	
+	private double order_init;
 
 	public String getProject() {
 		return project;
@@ -61,11 +62,21 @@ public class BugInfo {
 	public void setElements(List<String> elements) {
 		this.elements = elements;
 	}
+	
+	
+
+	public double getOrder_init() {
+		return order_init;
+	}
+
+	public void setOrder_init(double order_init) {
+		this.order_init = order_init;
+	}
 
 	@Override
 	public String toString() {
-		return "Bug [project=" + project + ", bug_id=" + bug_id + ", order_reported=" + order_reported
-				+ ", order_fixed=" + order_fixed + ", elements=" + elements + "]";
+		return project + "," + bug_id + "," + order_init + "," + order_reported
+				+ "," + order_fixed + "," + elements;
 	}
 
 	
