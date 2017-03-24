@@ -21,6 +21,8 @@ public class BugInfo {
 	@SerializedName("elements")
 	private List<String> elements;
 	
+	private String element;
+	
 	private double order_init;
 
 	public String getProject() {
@@ -71,6 +73,16 @@ public class BugInfo {
 
 	public void setOrder_init(double order_init) {
 		this.order_init = order_init;
+	}
+	
+	
+
+	public String getElement() {
+		return element;
+	}
+
+	public void setElement(String element) {
+		this.element = element;
 	}
 
 	@Override
