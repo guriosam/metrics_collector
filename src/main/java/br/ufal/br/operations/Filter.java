@@ -39,7 +39,7 @@ public class Filter {
 			}
 
 		}
-		
+
 		HashSet<String> setElemeents = new HashSet<String>();
 
 		for (BugInfo b : jsonBugs) {
@@ -48,11 +48,11 @@ public class Filter {
 
 				if (set.contains(s)) {
 					for (String m : mined) {
-						
+
 						String aux = m.substring(0, m.indexOf("="));
-						
+
 						String aux2 = s.substring(0, s.lastIndexOf(")"));
-						
+
 						if (aux.contains(aux2)) {
 							// System.out.println(e);
 							String[] metrics = m.split(",");
@@ -70,15 +70,17 @@ public class Filter {
 									if (c == 2) {
 										flag = false;
 										c = 0;
-										
-										if(Double.valueOf(ms) > (int) b.getOrder_reported()){
+
+										if (Double.valueOf(ms) > (int) b.getOrder_reported()) {
 											break;
 										}
-										
-										setElemeents.add(s + "%" +  Double.valueOf(ms) + "%" + (int) b.getOrder_reported());
-										
-										//System.out.println(
-											//	s + "%" +  Double.valueOf(ms) + "%" + (int) b.getOrder_reported());
+
+										setElemeents
+												.add(s + "%" + Double.valueOf(ms) + "%" + (int) b.getOrder_reported());
+
+										// System.out.println(
+										// s + "%" + Double.valueOf(ms) + "%" +
+										// (int) b.getOrder_reported());
 									}
 								}
 							}
@@ -89,16 +91,35 @@ public class Filter {
 				}
 			}
 		}
-		
-		for(String s : setElemeents){
+
+		for (String s : setElemeents) {
 			System.out.println(s);
 		}
 
 		System.out.println(setElemeents.size());
 	}
 
+	public void getReportedCommitOfMissingFiles() {
+		Reader r = new Reader();
+		List<String> missingFiles = r.readSecundaryFile("elementsMissingMetrics.txt");
+		List<BugInfo> bugs = r.readJSON("all_bugs.json");
+
+		for (String mf : missingFiles) {
+			String[] mfs = mf.split("%");
+			for (BugInfo b : bugs) {
+				for (String e : b.getElements()) {
+					if(e.contains(mfs[0])){
+						System.out.println(mf + "%" + b.getOrder_reported());
+						break;
+					}
+				}
+			}
+		}
+
+	}
+
 	public static List<String> filesOnFolder(String path) {
-		
+
 		List<String> fileNames = new ArrayList<String>();
 
 		if (path == null) {
@@ -106,7 +127,7 @@ public class Filter {
 		}
 
 		try {
-			//filesNamesPath = path;
+			// filesNamesPath = path;
 			File f = new File(path);
 
 			File[] files = f.listFiles();
@@ -118,9 +139,8 @@ public class Filter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return fileNames;
 	}
-
 
 }

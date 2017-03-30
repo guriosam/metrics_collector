@@ -15,9 +15,10 @@ public class Main {
 		// TODO Auto-generated method stub
 
 		MineData m = new MineData();
-		m.mineData();
+		//m.mineData();
 
 		Filter f = new Filter();
+		//f.getReportedCommitOfMissingFiles();
 		//f.filterMinedData();
 
 		Reader r = new Reader();
@@ -60,7 +61,7 @@ public class Main {
 		 
 		Collector c = new Collector();
 		//c.setMap(map);
-		//c.collectMetricsInProjects();
+		c.collectMetricsInProjects();
 		
 	}
 
