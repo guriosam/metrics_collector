@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -114,6 +115,7 @@ public class Reader {
 			}
 
 			while (line != null) {
+
 				String[] info = line.split(",");
 
 				Metric m = new Metric();
@@ -121,7 +123,76 @@ public class Reader {
 				m.setFile(info[2]);
 				m.setName(info[1].replaceAll("\"", ""));
 
+				String aux = "";
+				for (int i = 3; i < info.length - 1; i++) {
+					aux += info[i] + ",";
+				}
+
+				aux += info[info.length - 1];
+
+				m.setAllValues(aux);
+
 				metrics.add(m);
+
+				line = reader.readLine();
+			}
+
+			reader.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+
+		return metrics;
+
+	}
+
+	public HashMap<String, Metric> getMetricsCSV(String path) {
+		HashMap<String, Metric> metrics = new HashMap<String, Metric>();
+
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(path + "metrics.csv"));
+
+			// read file line by line
+			String line = reader.readLine();
+
+			if (line.contains("AvgCyclomatic")) {
+				line = reader.readLine();
+			}
+
+			while (line != null) {
+
+				String[] info = line.split(",");
+
+				if (info[0].contains("Method") || info[0].contains("Constructor")) {
+					Metric m = new Metric();
+					m.setKind(info[0]);
+					m.setFile(info[2]);
+
+					String[] newSplit = line.split("\"");
+
+					m.setName(newSplit[1].replaceAll("\"", ""));
+					String aux = "";
+					for (int i = 3; i < info.length - 1; i++) {
+						aux += info[i] + ",";
+					}
+
+					aux += info[info.length - 1];
+
+					m.setAllValues(aux);
+
+					// metrics.add(m);
+					metrics.put(m.getName(), m);
+				}
 				line = reader.readLine();
 			}
 
@@ -251,7 +322,7 @@ public class Reader {
 
 	public void writeMetrics(String path, List<Metric> metrics) {
 
-		String text = "Kind, Name, File, AvgCyclomatic, AvgCyclomaticModified,"
+		String text = "Commit, Kind, Name, File, AvgCyclomatic, AvgCyclomaticModified,"
 				+ " AvgCyclomaticStrict, AvgEssential, AvgLine, AvgLineBlank, "
 				+ "AvgLineCode, AvgLineComment, CountClassBase, CountClassCoupled, "
 				+ "CountClassDerived, CountDeclClass, CountDeclClassMethod, "
@@ -268,15 +339,21 @@ public class Reader {
 				+ "MaxNesting, PercentLackOfCohesion, RatioCommentToCode, SumCyclomatic, "
 				+ "SumCyclomaticModified, SumCyclomaticStrict, SumEssential\n";
 		for (Metric m : metrics) {
-
+			text += m + "," + m.getAllValues() + "\n";
 		}
 
 		Writer wr = null;
 
 		try {
-			wr = new FileWriter(path + ".txt");
-			wr.write(text);
-			wr.close();
+			File f = new File(path + ".txt");
+			if (f.exists()) {
+				System.out.println(path);
+			} else {
+				wr = new FileWriter(path + ".txt");
+				wr.write(text);
+				wr.close();
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
@@ -335,17 +412,16 @@ public class Reader {
 				if (outputDirectory.mkdir()) {
 				}
 			}
-			
+
 			Writer wr = new FileWriter(path2 + filename);
 			wr.close();
-			
+
 			is = new FileInputStream(path + filename);
 			os = new FileOutputStream(path2 + filename);
-			
+
 			byte[] buffer = new byte[1024];
 			int length;
 
-			
 			while ((length = is.read(buffer)) > 0) {
 				os.write(buffer, 0, length);
 			}

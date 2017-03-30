@@ -2,9 +2,11 @@ package br.ufal.ic.objects;
 
 public class Metric {
 	
+	private String commit;
 	private String kind;
 	private String name;
 	private String file;
+	private String allValues;
 	/*
 	 * TODO
 	 * Insert all metrics here
@@ -29,9 +31,23 @@ public class Metric {
 		this.file = file;
 	}
 	
+	public String getAllValues() {
+		return allValues;
+	}
+	public void setAllValues(String allValues) {
+		this.allValues = allValues;
+	}
+	
+	
+	public String getCommit() {
+		return commit;
+	}
+	public void setCommit(String commit) {
+		this.commit = commit;
+	}
 	@Override
 	public String toString() {
-		return "Metric [kind=" + kind + ", name=" + name + ", file=" + file + "]";
+		return commit + "," + kind + "," + name + "," + file;
 	}
 	
 	

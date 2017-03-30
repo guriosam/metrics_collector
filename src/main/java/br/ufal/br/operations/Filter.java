@@ -1,5 +1,7 @@
 package br.ufal.br.operations;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,8 @@ public class Filter {
 			}
 
 		}
+		
+		HashSet<String> setElemeents = new HashSet<String>();
 
 		for (BugInfo b : jsonBugs) {
 
@@ -44,7 +48,12 @@ public class Filter {
 
 				if (set.contains(s)) {
 					for (String m : mined) {
-						if (m.contains(s + "=")) {
+						
+						String aux = m.substring(0, m.indexOf("="));
+						
+						String aux2 = s.substring(0, s.lastIndexOf(")"));
+						
+						if (aux.contains(aux2)) {
 							// System.out.println(e);
 							String[] metrics = m.split(",");
 
@@ -61,8 +70,15 @@ public class Filter {
 									if (c == 2) {
 										flag = false;
 										c = 0;
-										System.out.println(
-												s + "," +  ms + "," + (int) b.getOrder_reported());
+										
+										if(Double.valueOf(ms) > (int) b.getOrder_reported()){
+											break;
+										}
+										
+										setElemeents.add(s + "%" +  Double.valueOf(ms) + "%" + (int) b.getOrder_reported());
+										
+										//System.out.println(
+											//	s + "%" +  Double.valueOf(ms) + "%" + (int) b.getOrder_reported());
 									}
 								}
 							}
@@ -73,8 +89,38 @@ public class Filter {
 				}
 			}
 		}
+		
+		for(String s : setElemeents){
+			System.out.println(s);
+		}
 
-		System.out.println(count);
+		System.out.println(setElemeents.size());
 	}
+
+	public static List<String> filesOnFolder(String path) {
+		
+		List<String> fileNames = new ArrayList<String>();
+
+		if (path == null) {
+			System.out.println("Folder name is null");
+		}
+
+		try {
+			//filesNamesPath = path;
+			File f = new File(path);
+
+			File[] files = f.listFiles();
+
+			for (File file : files) {
+				fileNames.add(file.getName().replace(".txt", ""));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return fileNames;
+	}
+
 
 }
