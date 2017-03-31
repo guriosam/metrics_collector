@@ -23,13 +23,14 @@ public class Main {
 
 		Reader r = new Reader();
 
-		/*int count = 0;
+		int count = 0;
 		int countBugs = 0;
 		HashSet<String> map = new HashSet();
 		for (BugInfo b : r.readJSON("all_bugs.json")) {
 			countBugs += b.getElements().size();
 			for (String e : b.getElements()) {
 				boolean flag = false;
+				map.add(e);
 				for (String s : f.filesOnFolder("timeline/")) {
 					//System.out.println(e);
 					e = e.substring(e.indexOf("org.apache"));
@@ -44,24 +45,24 @@ public class Main {
 					}
 				}
 				if (!flag) {
-					map.add(e);
+					//map.add(e);
 			//		System.out.println(e);
 				}
 			}
 		}
 		
 		 
-		//System.out.println(map.size());
+		System.out.println(map.size());
 		//System.out.println(count);
-		//System.out.println(countBugs);
+		System.out.println(countBugs);
 		
 		for(String s : map){
-			System.out.println(s);
-		}*/
+		//	System.out.println(s);
+		}
 		 
 		Collector c = new Collector();
 		//c.setMap(map);
-		c.collectMetricsInProjects();
+		//sc.collectMetricsInProjects();
 		
 	}
 

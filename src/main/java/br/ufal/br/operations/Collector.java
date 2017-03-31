@@ -58,6 +58,12 @@ public class Collector {
 
 		}
 		
+		System.out.println(count);
+		
+		if(count > 0){
+			return;
+		}
+		
 		HashMap<String, List<Metric>> output = new HashMap<String, List<Metric>>();
 
 		for (int i = 0; i < listHashs.size(); i++) {
@@ -68,7 +74,7 @@ public class Collector {
 			}
 
 			String c = listHashs.get(i);
-			HashMap<String, Metric> metrics = r.getMetricsCSV("/home/easy/metrics/commit_" + c + "/");
+			HashMap<String, Metric> metrics = r.getMetricsCSV("C:/Users/Gurio/metrics/commit_" + c + "/");
 
 			checkBugs(bugs, metrics, output, i, c);
 
@@ -93,16 +99,16 @@ public class Collector {
 				if (metrics.containsKey(e)) {
 					Metric m = metrics.get(e);
 					if (output.containsKey(b.getElement())) {
-						List<Metric> aux = output.get(b.getElement());
+						List<Metric> aux = output.get(e);
 						m.setCommit(c);
 						aux.add(m);
-						output.put(b.getElement(), aux);
+						output.put(e, aux);
 					} else {
 						List<Metric> aux = new ArrayList<Metric>();
 						m.setCommit(c);
 						aux.add(m);
 						//System.out.println(b.getElement());
-						output.put(b.getElement(), aux);
+						output.put(e, aux);
 					}
 				}
 			}
