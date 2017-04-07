@@ -88,7 +88,7 @@ public class BugInfo {
 	@Override
 	public String toString() {
 		return project + "," + bug_id + "," + order_init + "," + order_reported
-				+ "," + order_fixed + "," + elements;
+				+ "," + order_fixed + "," + element + "," + elements;
 	}
 
 	

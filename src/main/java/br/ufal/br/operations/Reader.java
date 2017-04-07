@@ -26,7 +26,7 @@ import br.ufal.ic.objects.Metric;
 
 public class Reader {
 
-	public List<Commit> readCSV(String filename) {
+	public static List<Commit> readCSV(String filename) {
 
 		List<Commit> commits = new ArrayList<Commit>();
 		BufferedReader reader = null;
@@ -69,7 +69,7 @@ public class Reader {
 		return commits;
 	}
 
-	public List<BugInfo> readJSON(String path) {
+	public static List<BugInfo> readJSON(String path, String projectName) {
 
 		List<BugInfo> bugs = new ArrayList<BugInfo>();
 
@@ -84,13 +84,24 @@ public class Reader {
 			List<LinkedTreeMap> treeBugs = gson.fromJson(fileData, List.class);
 
 			for (LinkedTreeMap b : treeBugs) {
-				BugInfo bug = new BugInfo();
+				if(b.get("project").equals(projectName)){
+					BugInfo bug = new BugInfo();
+					bug.setBug_id((String) b.get("bug_id"));
+					bug.setElements((List) b.get("elements"));
+					bug.setProject((String) b.get("project"));
+					bug.setOrder_fixed((Double) b.get("order_fixed"));
+					bug.setOrder_reported((Double) b.get("order_reported"));
+					bugs.add(bug);
+
+				}
+/*				BugInfo bug = new BugInfo();
 				bug.setBug_id((String) b.get("bug_id"));
 				bug.setElements((List) b.get("elements"));
 				bug.setProject((String) b.get("project"));
 				bug.setOrder_fixed((Double) b.get("order_fixed"));
 				bug.setOrder_reported((Double) b.get("order_reported"));
 				bugs.add(bug);
+				*/
 			}
 
 		} catch (Exception e) {
@@ -100,7 +111,7 @@ public class Reader {
 		return bugs;
 	}
 
-	public List<Metric> readMetricsCSV(String path) {
+	public static List<Metric> readMetricsCSV(String path) {
 		List<Metric> metrics = new ArrayList<Metric>();
 
 		BufferedReader reader = null;
@@ -155,11 +166,18 @@ public class Reader {
 
 	}
 
-	public HashMap<String, Metric> getMetricsCSV(String path) {
+	public static HashMap<String, Metric> getMetricsCSV(String path) {
 		HashMap<String, Metric> metrics = new HashMap<String, Metric>();
 
 		BufferedReader reader = null;
 		try {
+			
+			File f = new File(path + "metrics.csv");
+			
+			if(!f.exists()){
+				return null;
+			}
+			
 			reader = new BufferedReader(new FileReader(path + "metrics.csv"));
 
 			// read file line by line
@@ -214,7 +232,7 @@ public class Reader {
 
 	}
 
-	public ArrayList<Commit> readFile(String filename) {
+	public static ArrayList<Commit> readFile(String filename) {
 
 		ArrayList<Commit> commits = new ArrayList<Commit>();
 		BufferedReader reader = null;
@@ -257,12 +275,21 @@ public class Reader {
 		return commits;
 	}
 
-	public ArrayList<String> readSecundaryFile(String filename) {
+	public static ArrayList<String> readSecundaryFile(String filename) {
 
 		ArrayList<String> commits = new ArrayList<String>();
 		BufferedReader reader = null;
 		try {
+			
+			File f = new File(filename);
+			
+			if(!f.exists()){
+				System.out.println("File " + filename + " does not exists.");
+			}
+			
 			reader = new BufferedReader(new FileReader(filename));
+			
+		
 
 			// read file line by line
 			String line = reader.readLine();
@@ -294,7 +321,7 @@ public class Reader {
 		return commits;
 	}
 
-	public void writeFileCommits(String path, List<Commit> commits) {
+	public static void writeFileCommits(String path, List<Commit> commits) {
 
 		String text = "project,commit_order,commit_hash,commit_old\n";
 		for (Commit c : commits) {
@@ -320,9 +347,10 @@ public class Reader {
 		}
 	}
 
-	public void writeMetrics(String path, List<Metric> metrics) {
+	public static void writeMetrics(String path, List<Metric> metrics) {
 
-		String text = "Commit, Kind, Name, File, AvgCyclomatic, AvgCyclomaticModified,"
+		String text = "";
+				/*"Commit, Kind, Name, File, AvgCyclomatic, AvgCyclomaticModified,"
 				+ " AvgCyclomaticStrict, AvgEssential, AvgLine, AvgLineBlank, "
 				+ "AvgLineCode, AvgLineComment, CountClassBase, CountClassCoupled, "
 				+ "CountClassDerived, CountDeclClass, CountDeclClassMethod, "
@@ -337,7 +365,7 @@ public class Reader {
 				+ " CyclomaticModified, CyclomaticStrict, Essential, MaxCyclomatic, "
 				+ "MaxCyclomaticModified, MaxCyclomaticStrict, MaxEssential, MaxInheritanceTree, "
 				+ "MaxNesting, PercentLackOfCohesion, RatioCommentToCode, SumCyclomatic, "
-				+ "SumCyclomaticModified, SumCyclomaticStrict, SumEssential\n";
+				+ "SumCyclomaticModified, SumCyclomaticStrict, SumEssential\n";*/
 		for (Metric m : metrics) {
 			text += m + "," + m.getAllValues() + "\n";
 		}
@@ -349,7 +377,7 @@ public class Reader {
 			if (f.exists()) {
 				System.out.println(path);
 			} else {
-				wr = new FileWriter(path + ".txt");
+				wr = new FileWriter(path + ".txt", true);
 				wr.write(text);
 				wr.close();
 			}
@@ -366,7 +394,7 @@ public class Reader {
 		}
 	}
 
-	public void copyMetricsFile(String path, String path2, String filename) {
+	public static void copyMetricsFile(String path, String path2, String filename) {
 
 		/*
 		 * BufferedReader reader = null; try { reader = new BufferedReader(new
@@ -440,7 +468,7 @@ public class Reader {
 
 	}
 
-	public void getOtherHash() {
+	public static void getOtherHash() {
 
 		ArrayList<Commit> commit = new ArrayList<Commit>();
 		commit = readFile("commits.csv");
@@ -457,8 +485,8 @@ public class Reader {
 		ArrayList<String> commitSecundary4 = new ArrayList<String>();
 		commitSecundary4 = readSecundaryFile("commit4.txt");
 
-		ArrayList<String> commitSecundary5 = new ArrayList<String>();
-		commitSecundary5 = readSecundaryFile("commit5.txt");
+		//ArrayList<String> commitSecundary5 = new ArrayList<String>();
+		//commitSecundary5 = readSecundaryFile("commit5.txt");
 
 		ArrayList<String> commitSecundary6 = new ArrayList<String>();
 		commitSecundary6 = readSecundaryFile("commit6.txt");
@@ -498,14 +526,14 @@ public class Reader {
 				}
 			}
 		}
-		for (int i = 0; i < commit.size(); i++) {
+		/*for (int i = 0; i < commit.size(); i++) {
 			for (int j = 0; j < commitSecundary5.size(); j++) {
 				String[] hashs = commitSecundary5.get(j).split(";");
 				if (hashs[1].contains(commit.get(i).getCommitHash())) {
 					commit.get(i).setCommitOld(hashs[0]);
 				}
 			}
-		}
+		}*/
 
 		for (int i = 0; i < commit.size(); i++) {
 			for (int j = 0; j < commitSecundary6.size(); j++) {
@@ -516,6 +544,28 @@ public class Reader {
 			}
 		}
 
-		writeFileCommits("commitsNew", commit);
+		writeFileCommits("commits_repo_table", commit);
+	}
+
+	public static void writeMiningOutput(String path, String text) {
+		// TODO Auto-generated method stub
+		
+		Writer wr = null;
+		
+		try {
+			wr = new FileWriter(path + ".txt");
+			wr.write(text);
+			wr.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				if (wr != null) {
+					wr.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		
 	}
 }

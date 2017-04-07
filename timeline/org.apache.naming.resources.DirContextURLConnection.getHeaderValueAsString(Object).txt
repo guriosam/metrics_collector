@@ -1,0 +1,1 @@
+eb267e1b0bbaa40fcfc6d8c736bd2036f3d6849b,Protected Method,org.apache.naming.resources.DirContextURLConnection.getHeaderValueAsString(Object),org/apache/naming/resources/DirContextURLConnection.java,,,,,,,,,,,,,,,,,,,,,,,,,3,10,0,8,1,5,2,4,3,3,6,1,5,3,3,3,3,,,,,,1,,0,25
