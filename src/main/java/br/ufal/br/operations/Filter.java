@@ -11,11 +11,10 @@ import br.ufal.br.json.BugInfo;
 public class Filter {
 
 	public void filterMinedData(String projectName) {
-		Reader r = new Reader();
 
-		List<String> mined = r.readSecundaryFile("mined_data_tomcat.txt");
+		List<String> mined = Reader.readSecundaryFile("mined_data_" + projectName + ".txt");
 
-		List<BugInfo> jsonBugs = r.readJSON("all_bugs.json", projectName);
+		List<BugInfo> jsonBugs = Reader.readJSON("all_bugs.json", projectName);
 
 		Set<String> set = new HashSet<String>();
 
@@ -90,14 +89,14 @@ public class Filter {
 			text += s + "\n";
 			System.out.println(s);
 		}
-		r.writeMiningOutput("elementsToGetMetrics_" + projectName, text);
+		Reader.writeMiningOutput("elementsToGetMetrics_" + projectName, text);
 		
 		String nullText = "";
 		for (String s : nullElements) {
 			nullText += s + "\n";
 			System.out.println(s);
 		}
-		r.writeMiningOutput("elementsNotFound_" + projectName, nullText);
+		Reader.writeMiningOutput("elementsNotFound_" + projectName, nullText);
 
 		System.out.println(setElemeents.size());
 	}
