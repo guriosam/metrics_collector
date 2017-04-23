@@ -17,16 +17,22 @@ public class Main {
 		// Reader r = new Reader();
 
 		// r.getOtherHash();
+		List<String> listHashs = ReaderUtils.readSecundaryFile("hashs_" + projectName + ".txt");
 		
+		for(int i = 0; i < listHashs.size(); i++){
+			System.out.println(i + "/" + listHashs.size());
+			String h = listHashs.get(i);
+			Filter.filterCSVFile("C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/" + projectName + "/metrics/commit_" + h + "/", 
+					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
+		}
 
 		MineData m = new MineData(projectName);
-		m.mineData();
+		//m.mineData();
 		//m.saveMetricsOnDatabase();
 		
 		// m.checkoutProject();
 
-		Filter f = new Filter();
-
+		
 		// f.getReportedCommitOfMissingFiles();
 		// f.filterMinedData("apache_derby");
 		// f.filterMinedData("apache_tomcat");

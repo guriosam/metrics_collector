@@ -1,12 +1,19 @@
 package br.ufal.ic.operations;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
 import br.ufal.ic.json.BugInfo;
+import br.ufal.ic.model.Metric;
 
 public class Filter {
 
@@ -87,7 +94,7 @@ public class Filter {
 			System.out.println(s);
 		}
 		WriterUtils.writeMiningOutput("elementsToGetMetrics_" + projectName, text);
-		
+
 		String nullText = "";
 		for (String s : nullElements) {
 			nullText += s + "\n";
@@ -139,6 +146,47 @@ public class Filter {
 		}
 
 		return fileNames;
+	}
+
+	public static void filterCSVFile(String path, List<String> elements) {
+		// HashMap<String, Metric> metrics = new HashMap<String, Metric>();
+		List<String[]> metrics = new ArrayList<String[]>();
+
+		try {
+
+			File f = new File(path + "metrics.csv");
+			File f2 = new File(path + "metrics2.csv");
+
+			if (!f.exists()) {
+				return;
+			}
+
+			CSVReader csvReader = new CSVReader(new FileReader(f));
+			List<String[]> myEntries = csvReader.readAll();
+
+			for (String[] info : myEntries) {
+				if (info[3].contains("AvgCyclomatic")) {
+					continue;
+				}
+
+				if (info[0].contains("Method") || info[0].contains("Constructor")) {
+					if (elements.contains(info[1])) {
+						metrics.add(info);
+					}
+				}
+			}
+
+			CSVWriter csvWriter = new CSVWriter(new FileWriter(f2), ',');
+
+			csvWriter.writeAll(metrics);
+
+			csvWriter.close();
+			csvReader.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

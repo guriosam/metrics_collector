@@ -43,30 +43,13 @@ public class Collector {
 		List<BugInfo> bugs = bugsOperations.assignBugList(projectName);
 		double max = bugsOperations.getMaxCommit();
 
-		// HashMap<String, List<Metric>> output = new HashMap<String,
-		// List<Metric>>();
-
-		// startAnalysis(listHashs, 0, 1000, bugs, output);
-
-		// startAnalysis(listHashs, 1000, 2000, bugs, output);
-		// startAnalysis(listHashs, 2000, 3000, bugs, output);
-		// startAnalysis(listHashs, 3000, 4000, bugs, output);
-		// startAnalysis(listHashs, 4000, 5000, bugs, output);
-		// startAnalysis(listHashs, 5000, 6000, bugs, output);
-		// startAnalysis(listHashs, 6000, 7000, bugs, output);
-		// startAnalysis(listHashs, 7000, 8000, bugs, output);
-		// startAnalysis(listHashs, 8000, 9000, bugs, output);
-		// startAnalysis(listHashs, 9000, 10000, bugs, output);
-		// startAnalysis(listHashs, 10000, 11000, bugs, output);
-		// if (max > 11000) {
-		// startAnalysis(listHashs, 11000, (int) max, bugs, output);
-		// }
-
-		startAnalysis(listHashs, 0, (int) max, bugs);
+		HashMap<String, List<Metric>> output = new HashMap<>();
+		
+		startAnalysis(listHashs, 0, (int) max, bugs, output);
 
 	}
 
-	private void startAnalysis(List<String> listHashs, int start, int end, List<BugInfo> bugs) {
+	private void startAnalysis(List<String> listHashs, int start, int end, List<BugInfo> bugs, HashMap<String, List<Metric>> output) {
 
 		HashMap<String, Metric> metrics = null;
 		for (int i = start; i < end; i++) {
@@ -80,11 +63,7 @@ public class Collector {
 				continue;
 			}
 
-			checkBugs(bugs, metrics, i, c);
-
-			metrics.clear();
-			metrics = null;
-			System.gc();
+			checkBugs(bugs, metrics, output, i, c);
 		}
 
 		int aux = 0;
@@ -96,27 +75,15 @@ public class Collector {
 	}
 
 	private void checkBugs(List<BugInfo> bugs, HashMap<String, Metric> metrics,
-			// HashMap<String, List<Metric>> output,
+			HashMap<String, List<Metric>> output,
 			int i, String c) {
 
-		List<BugInfo> bugsToRemove = new LinkedList<BugInfo>();
 		for (BugInfo b : bugs) {
-			// if (b.getOrder_reported() <= i && i <= (b.getOrder_fixed() + 1))
-			// {
 			if (i <= b.getOrder_reported()) {
 				String e = b.getElement();
-
 				if (metrics != null) {
 					if (metrics.containsKey(e)) {
 						try {
-							HttpResponse getResponse = conn
-									.getMethod(Constants.IP + Parameters.METRIC_GET_BY_NAME.getText() + "name/" + "valuename"); 
-							// columnName/valuename
-							ArrayList<Metric> ms = (ArrayList<Metric>) parse.parseJsonToClass(getResponse.getMesage(), new Metric());
-							System.out.println("\nMetricas encontradas cujo valor da diretiva MaxCyclomatic seja valuename:");
-							for (Metric m2 : ms) {
-								System.out.println(m2.getCommit());
-							}
 							
 						} catch (Exception e2) {
 							e2.printStackTrace();
@@ -125,10 +92,6 @@ public class Collector {
 				}
 			}
 
-		}
-
-		for (BugInfo b : bugsToRemove) {
-			bugs.remove(b);
 		}
 	}
 

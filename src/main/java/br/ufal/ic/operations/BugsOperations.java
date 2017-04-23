@@ -22,17 +22,11 @@ public class BugsOperations {
 
 		List<String> elementsToCollect = r.readSecundaryFile("elementsToGetMetrics_" + projectName + ".txt");
 
-		// List<HashMap<String, List<Metric>>> metricas = new
-		// ArrayList<HashMap<String, List<Metric>>>();
-
 		for (String s : elementsToCollect) {
 			BugInfo b = new BugInfo();
 
 			String[] line = s.split("%");
 
-			// if (line[0].contains("org.apache")) {
-			// line[0] = line[0].substring(line[0].indexOf("org.apache"));
-			// }
 			if (line[0].contains("org.apache")) {
 				line[0] = line[0].substring(line[0].indexOf("org.apache"));
 			} else if (line[0].contains("javax.")) {
