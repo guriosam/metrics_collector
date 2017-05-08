@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufal.ic.json.BugInfo;
+import br.ufal.ic.utils.IO;
 
 public class BugsOperations {
 
@@ -16,11 +17,10 @@ public class BugsOperations {
 		
 		maxCommit = 0;
 
-		ReaderUtils r = new ReaderUtils();
 
 		List<BugInfo> bugs = new ArrayList<BugInfo>();
 
-		List<String> elementsToCollect = r.readSecundaryFile("elementsToGetMetrics_" + projectName + ".txt");
+		List<String> elementsToCollect = IO.readAnyFile(projectName + "/elementsToGetMetrics_" + projectName + ".txt");
 
 		for (String s : elementsToCollect) {
 			BugInfo b = new BugInfo();

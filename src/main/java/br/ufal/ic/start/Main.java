@@ -5,7 +5,7 @@ import java.util.List;
 import br.ufal.ic.operations.Collector;
 import br.ufal.ic.operations.Filter;
 import br.ufal.ic.operations.MineData;
-import br.ufal.ic.operations.ReaderUtils;
+import br.ufal.ic.utils.Paths;
 
 public class Main {
 
@@ -13,34 +13,38 @@ public class Main {
 
 		String projectName = "apache_tomcat";
 		//String projectName = "apache_derby";
-
-		// Reader r = new Reader();
-
-		// r.getOtherHash();
-		List<String> listHashs = ReaderUtils.readSecundaryFile("hashs_" + projectName + ".txt");
 		
-		for(int i = 0; i < listHashs.size(); i++){
-			System.out.println(i + "/" + listHashs.size());
-			String h = listHashs.get(i);
-			Filter.filterCSVFile("C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/" + projectName + "/metrics/commit_" + h + "/", 
-					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
-		}
-
+		/*List<String> commitFiles = Filter.filesOnFolder(Paths.PATH_WORKSPACE + projectName + "/repositoryCommits/");
+		for(String s : commitFiles){
+			System.out.println(s);
+		}*/
+		
+		/*
+		 * Steps
+		 * 1. Collect the pair of hashs of commits, from the real database to the ufal database.
+		 * 2. Collect all metrics.csv from all commits.
+		 * 3. Create the filtered CSV file to help the minning.
+		 * 4. Collect the historic of metrics in the CSV files for each element of bug.
+		 */
+		
+		
+		// r.getOtherHash();
+		
 		MineData m = new MineData(projectName);
+		//m.checkMinning();
 		//m.mineData();
-		//m.saveMetricsOnDatabase();
 		
 		// m.checkoutProject();
 
-		
-		// f.getReportedCommitOfMissingFiles();
-		// f.filterMinedData("apache_derby");
-		// f.filterMinedData("apache_tomcat");
+		// Filter.getReportedCommitOfMissingFiles();
+		// Filter.filterMinedData("apache_derby");
+		// Filter.filterMinedData("apache_tomcat");
 
-		Collector c = new Collector(projectName); // c.setMap(map);
-		//c.collectMetricsInProjects(projectName);
-		// c.checkAllWasCollected("apache_tomcat");
-		// c.checkAllWasCollected(projectName);
+		Collector c = new Collector(projectName);
+		c.collectMetricsInProjects(projectName);
+		//c.getElementsNotCollected(projectName);
+		
+		
 
 	}
 

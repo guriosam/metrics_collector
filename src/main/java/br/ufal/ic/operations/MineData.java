@@ -10,29 +10,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gson.Gson;
+import com.opencsv.CSVWriter;
 
-import br.ufal.ic.connection.ConnectionURL;
-import br.ufal.ic.connection.HttpResponse;
 import br.ufal.ic.json.BugInfo;
-import br.ufal.ic.model.Element;
-import br.ufal.ic.model.Metric;
-import br.ufal.ic.utils.Constants;
-import br.ufal.ic.utils.Parameters;
-import br.ufal.ic.utils.Parse;
+import br.ufal.ic.objects.Metric;
+import br.ufal.ic.utils.IO;
+import br.ufal.ic.utils.Paths;
 
 public class MineData {
 
 	private String projectName;
-	private ConnectionURL conn;
-	private Parse parse;
-	private Gson gson;
 
 	public MineData(String projectName) {
 		this.projectName = projectName;
-		gson = new Gson();
-		parse = new Parse();
-		conn = new ConnectionURL();
 	}
 
 	public void mineData() {
@@ -43,9 +33,9 @@ public class MineData {
 		 * "java.testing.org.apache.derbyTesting.junit.CleanDatabaseTestSetup.setUp()"]
 		 * }
 		 */
-		List<BugInfo> jsonBugs = ReaderUtils.readJSON("all_bugs.json", projectName);
+		List<BugInfo> jsonBugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
-		List<String> listHashs = ReaderUtils.readSecundaryFile("hashs_" + projectName + ".txt");
+		List<String> listHashs = IO.readAnyFile("hashs_" + projectName + ".txt");
 
 		HashMap<String, Integer> info = new HashMap<String, Integer>();
 
@@ -67,11 +57,11 @@ public class MineData {
 			}
 
 		}
-		
+
 		System.out.println(info.keySet().size());
-		
+
 		System.out.println("Start reading Metrics..");
-		
+
 		for (int i = 1455; i < listHashs.size(); i++) {
 			String h = listHashs.get(i);
 			System.out.println(i + "/" + listHashs.size());
@@ -89,26 +79,25 @@ public class MineData {
 			// }
 			//
 			String output = cd + "\n";
-	
+
 			for (String e : info.keySet()) {
-				
+
 				String path = e;
-				
-				if(e.contains("<")){
+
+				if (e.contains("<")) {
 					path = e.substring(0, e.indexOf("<"));
-				} else if(e.length() > 100){
+				} else if (e.length() > 100) {
 					path = e.substring(0, 100);
-				} else if (e.contains(">")){
+				} else if (e.contains(">")) {
 					path = e.substring(0, e.indexOf(">"));
 				}
-				
+
 				String command = "csvcut -c Kind,Name,File,AvgCyclomatic,AvgCyclomaticModified,AvgCyclomaticStrict,AvgEssential,AvgLine,AvgLineBlank,AvgLineCode,AvgLineComment,CountClassBase,CountClassCoupled,CountClassDerived,CountDeclClass,CountDeclClassMethod,CountDeclClassVariable,CountDeclFile,CountDeclFunction,CountDeclInstanceMethod,CountDeclInstanceVariable,CountDeclMethod,CountDeclMethodAll,CountDeclMethodDefault,CountDeclMethodPrivate,CountDeclMethodProtected,CountDeclMethodPublic,CountInput,CountLine,CountLineBlank,CountLineCode,CountLineCodeDecl,CountLineCodeExe,CountLineComment,CountOutput,CountPath,CountSemicolon,CountStmt,CountStmtDecl,CountStmtExe,Cyclomatic,CyclomaticModified,CyclomaticStrict,Essential,MaxCyclomatic,MaxCyclomaticModified,MaxCyclomaticStrict,MaxEssential,MaxInheritanceTree,MaxNesting,PercentLackOfCohesion,RatioCommentToCode,SumCyclomatic,SumCyclomaticModified,SumCyclomaticStrict,SumEssential"
-						+ " metrics.csv " + "| csvgrep -c Name -m " + e
-						+ " | csvlook > " + "\"" + path + ".txt\"";
-				
+						+ " metrics.csv " + "| csvgrep -c Name -m " + e + " | csvlook > " + "\"" + path + ".txt\"";
+
 				output += command + "\n";
 			}
-			
+
 			WriterUtils.writeMiningOutput("commands/mined_data_" + projectName + "_" + h + ".bat", output);
 
 		}
@@ -117,159 +106,42 @@ public class MineData {
 
 	}
 
-	public void checkoutProject() {
+	public void checkMinning() {
 
-		ReaderUtils jr = new ReaderUtils();
+		List<String> files = Filter.filesOnFolder(Paths.PATH_DATA + projectName + "/timeline_init_reported/");
 
-		// List<BugInfo> jsonBugs =
-		// jr.readJSON("C:/Users/gurio/workspace/metrics_collector/all_bugs.json");
+		for (String file : files) {
 
-		// List<String> listHashs =
-		// jr.readSecundaryFile("C:/Users/gurio/workspace/metrics_collector/hashs.txt");
+			String outputFile = "";
+			List<String> fileData = IO.readCSVFileByCollumn(
+					Paths.PATH_DATA + projectName + "/timeline_init_reported/" + file + ".txt", 0);
 
-		/*
-		 * Read commits file
-		 */
+			List<String> hashs = IO.readAnyFile(projectName + "/hashs_by_element/" + file + ".txt");
+			for (String hash : hashs) {
+				boolean flag = true;
+				for (String data : fileData) {
+					if (data.contains(hash)) {
+						outputFile += hash + "," + "true\n";
+						flag = false;
+						break;
+					}
+				}
+				if (flag) {
+					outputFile += hash + "," + "false\n";
+				}
 
-		/*
-		 * Retorna Lista de Commmits private String projectName; private double
-		 * commitOrder; private String commitHash;
-		 */
-		// List<String> commits =
-		// jr.readSecundaryFile("C:/Users/gurio/workspace/metrics_collector/commits_repo_table.txt");
-		List<String> commits = ReaderUtils.readSecundaryFile("C:/Users/gurio/workspace/metrics_collector/commit6.txt");
-		int count = 0;
-		for (String c : commits) {
-			// System.out.println("cd
-			// C:/Users/gurio/Desktop/Pesquisa/Puc/Projetos/apache_tomcat/dengue_results_repo");
-			String[] com = c.split(";");
-			// System.out.println("git checkout -f " + com[3]);
+			}
 
-			File outputDirectory = new File("C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/" + projectName + "/metrics/");
+			String outputPath = projectName + "/validation/";
+			File outputDirectory = new File(outputPath);
 
 			if (!outputDirectory.exists()) {
 				if (outputDirectory.mkdir()) {
 				}
 			}
 
-			try {
-				String cmd = "git checkout -f " + com[0];
-
-				Runtime run = Runtime.getRuntime();
-
-				Process pr = run.exec(cmd);
-
-				BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-				BufferedReader stdError = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
-
-				String s = null;
-				while ((s = stdInput.readLine()) != null) {
-					System.out.println(s);
-				}
-
-				while ((s = stdError.readLine()) != null) {
-					System.out.println(s);
-				}
-
-				ReaderUtils.copyMetricsFile(
-						"C:/Users/gurio/Desktop/Pesquisa/Puc/Projetos/" + projectName + "/ufal5_results_repo/",
-						outputDirectory + "/commit_" + com[0] + "/", "metrics.csv");
-				System.out.println(count + "/" + commits.size());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			count++;
-
+			WriterUtils.writeMiningOutput(outputPath + file + ".txt", outputFile);
 		}
-	}
-
-	public void saveMetricsOnDatabase() {
-
-		List<String> listHashs = ReaderUtils.readSecundaryFile("hashs_" + projectName + ".txt");
-		int count = 0;
-
-		for (int i = 114; i < listHashs.size(); i++) {
-
-			String h = listHashs.get(i);
-
-			System.out.println(i + "/" + listHashs.size());
-			try {
-				ArrayList<Metric> metrics = ReaderUtils.getListMetricsCSV(
-						"C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/" + projectName + "/metrics/commit_" + h + "/", h);
-
-				final Element e = new Element();
-
-				e.setName(nextSessionId());
-
-				e.setMetric(metrics);
-
-				final int actual = i;
-
-				Thread t = new Thread() {
-					@Override
-					public void run() {
-						try {
-							// System.out.println("Sending data to database");
-
-							HttpResponse postResponse = conn
-									.postMethod(Constants.IP + Parameters.ELEMENT_POST.getText(), gson.toJson(e));
-
-							System.out.println("Ended " + actual);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				};
-
-				t.start();
-
-				// System.out.println(free);
-
-				if (getFreeMemory() < 500000) {
-					System.out.println("waiting...");
-					while (getFreeMemory() < 500000) {
-
-					}
-					System.out.println("going..");
-				}
-
-				// System.out.println(postResponse.getMesage());
-
-				// break;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			count++;
-			// break;
-		}
-	}
-
-	private static SecureRandom random = new SecureRandom();
-
-	public static String nextSessionId() {
-		return new BigInteger(130, random).toString(32);
-	}
-
-	public static double getFreeMemory() {
-
-		Runtime runtime = Runtime.getRuntime();
-
-		long freeMemory = runtime.freeMemory();
-
-		// if(freeMemory < )
-
-		NumberFormat format = NumberFormat.getInstance();
-
-		long maxMemory = runtime.maxMemory();
-		long allocatedMemory = runtime.totalMemory();
-		// long freeMemory = runtime.freeMemory();
-
-		String f = format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024);
-		Double free = Double.parseDouble(f.replace(".", ""));
-
-		return free;
 	}
 
 }

@@ -13,15 +13,17 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import br.ufal.ic.json.BugInfo;
-import br.ufal.ic.model.Metric;
+import br.ufal.ic.objects.Metric;
+import br.ufal.ic.utils.IO;
+import br.ufal.ic.utils.Paths;
 
 public class Filter {
 
 	public void filterMinedData(String projectName) {
 
-		List<String> mined = ReaderUtils.readSecundaryFile("mined_data_" + projectName + ".txt");
+		List<String> mined = IO.readAnyFile("mined_data_" + projectName + ".txt");
 
-		List<BugInfo> jsonBugs = ReaderUtils.readJSON("all_bugs.json", projectName);
+		List<BugInfo> jsonBugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
 		Set<String> set = new HashSet<String>();
 
@@ -106,8 +108,8 @@ public class Filter {
 	}
 
 	public void getReportedCommitOfMissingFiles(String projectName) {
-		List<String> missingFiles = ReaderUtils.readSecundaryFile("elementsMissingMetrics.txt");
-		List<BugInfo> bugs = ReaderUtils.readJSON("all_bugs.json", projectName);
+		List<String> missingFiles = IO.readAnyFile("elementsMissingMetrics.txt");
+		List<BugInfo> bugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
 		for (String mf : missingFiles) {
 			String[] mfs = mf.split("%");
@@ -148,14 +150,14 @@ public class Filter {
 		return fileNames;
 	}
 
-	public static void filterCSVFile(String path, List<String> elements) {
+	public static void filterCSVFile(String path, String path2, List<String> elements) {
 		// HashMap<String, Metric> metrics = new HashMap<String, Metric>();
 		List<String[]> metrics = new ArrayList<String[]>();
 
 		try {
 
 			File f = new File(path + "metrics.csv");
-			File f2 = new File(path + "metrics2.csv");
+			File f2 = new File(path2 + "metrics2.csv");
 
 			if (!f.exists()) {
 				return;
@@ -167,6 +169,10 @@ public class Filter {
 			for (String[] info : myEntries) {
 				if (info[3].contains("AvgCyclomatic")) {
 					continue;
+				}
+				
+				if(info[1].contains("?")){
+					info[1] = info[1].replaceAll("?", "");
 				}
 
 				if (info[0].contains("Method") || info[0].contains("Constructor")) {
@@ -189,4 +195,63 @@ public class Filter {
 
 	}
 
+	public void createReducedCSVFile(String projectName) {
+
+		List<String> listHashs = IO.readAnyFile("hashs_" + projectName + ".txt");
+
+		for (int i = 0; i < listHashs.size(); i++) {
+			System.out.println(i + "/" + listHashs.size());
+			String h = listHashs.get(i);
+			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/",
+					Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/",
+					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
+		}
+
+	}
+
+	public static void makeHashFileByElement(String projectName) {
+
+		List<String> elementsToGetHash = IO.readAnyFile(projectName + "/elementsToGetMetrics_" + projectName + ".txt");
+		List<String> commitsList = IO.readAnyFile(projectName + "/commits_repo_table.txt");
+		HashMap<String, String> commitsHash = new HashMap<>();
+		for (String commit : commitsList) {
+			String[] commitCollumns = commit.split(",");
+			String c1 = commitCollumns[1].replaceAll(" ", "");
+			c1 = c1.replaceAll("\n", "");
+			String c3 = commitCollumns[3].replace(" ", "");
+			c3 = c3.replaceAll("\n", "");
+			// System.out.println(c1);
+			commitsHash.put(c1, c3);
+		}
+
+		int count = 0;
+
+		for (String element : elementsToGetHash) {
+
+			System.out.println(count + "/" + elementsToGetHash.size());
+
+			String[] elementCollumns = element.split("%");
+
+			Double startCommit = Double.parseDouble(elementCollumns[1]);
+			Double endCommit = Double.parseDouble(elementCollumns[2]);
+
+			String outputFile = "";
+
+			for (double i = startCommit + 1; i <= endCommit; i++) {
+				outputFile += commitsHash.get(i + "") + "\n";
+			}
+
+			String outputPath = projectName + "/hashs_by_element/";
+			File outputDirectory = new File(outputPath);
+
+			if (!outputDirectory.exists()) {
+				if (outputDirectory.mkdir()) {
+				}
+			}
+
+			WriterUtils.writeMiningOutput(outputPath + elementCollumns[0] + ".txt", outputFile);
+			count++;
+		}
+
+	}
 }
