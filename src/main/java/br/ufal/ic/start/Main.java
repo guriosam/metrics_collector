@@ -2,6 +2,8 @@ package br.ufal.ic.start;
 
 import java.util.List;
 
+import br.ufal.ic.json.BugInfo;
+import br.ufal.ic.operations.BugsOperations;
 import br.ufal.ic.operations.Collector;
 import br.ufal.ic.operations.Filter;
 import br.ufal.ic.operations.MineData;
@@ -12,28 +14,28 @@ public class Main {
 	public static void main(String[] args) { // TODO Auto-generated method
 
 		String projectName = "apache_tomcat";
-		//String projectName = "apache_derby";
-		
-		/*List<String> commitFiles = Filter.filesOnFolder(Paths.PATH_WORKSPACE + projectName + "/repositoryCommits/");
-		for(String s : commitFiles){
-			System.out.println(s);
-		}*/
-		
+		// String projectName = "apache_derby";
+
 		/*
-		 * Steps
-		 * 1. Collect the pair of hashs of commits, from the real database to the ufal database.
-		 * 2. Collect all metrics.csv from all commits.
-		 * 3. Create the filtered CSV file to help the minning.
-		 * 4. Collect the historic of metrics in the CSV files for each element of bug.
+		 * List<String> commitFiles = Filter.filesOnFolder(Paths.PATH_WORKSPACE
+		 * + projectName + "/repositoryCommits/"); for(String s : commitFiles){
+		 * System.out.println(s); }
 		 */
-		
-		
+
+		/*
+		 * Steps 1. Collect the pair of hashs of commits, from the real database
+		 * to the ufal database. 2. Collect all metrics.csv from all commits. 3.
+		 * Create the filtered CSV file to help the minning. 4. Collect the
+		 * historic of metrics in the CSV files for each element of bug.
+		 */
+
 		// r.getOtherHash();
-		
+
 		MineData m = new MineData(projectName);
-		//m.checkMinning();
-		//m.mineData();
-		
+		// m.checkMinning();
+
+		// m.mineData();
+
 		// m.checkoutProject();
 
 		// Filter.getReportedCommitOfMissingFiles();
@@ -41,10 +43,17 @@ public class Main {
 		// Filter.filterMinedData("apache_tomcat");
 
 		Collector c = new Collector(projectName);
-		c.collectMetricsInProjects(projectName);
-		//c.getElementsNotCollected(projectName);
-		
-		
+
+		BugsOperations bugsOperations = new BugsOperations();
+		List<BugInfo> bugs = bugsOperations.assignBugList(projectName);
+		for (BugInfo bug : bugs) {
+			if(c.checkValited(bug)){
+				System.out.println(bug.getElement());
+			}
+		}
+
+		// c.collectMetricsInProjects(projectName);
+		// c.getElementsNotCollected(projectName);
 
 	}
 

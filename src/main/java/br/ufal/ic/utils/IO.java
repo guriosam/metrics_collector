@@ -179,7 +179,8 @@ public class IO {
 	public static List<String> readCSVFileByCollumn(String filename, int collumn) {
 
 		List<String> fileLines = readAnyFile(filename);
-
+		
+		
 		List<String> collumnRows = new ArrayList<>();
 
 		for (String lineAll : fileLines) {
@@ -190,6 +191,10 @@ public class IO {
 				if (collumnData.equals("Commit")) {
 					continue;
 				}
+				if(filename.contains("org.apache.catalina.webresources.StandardRoot.listWebAppPaths(String)")){
+				//	System.out.println(collumnData);
+				}
+
 				collumnRows.add(collumnData);
 			}
 		}

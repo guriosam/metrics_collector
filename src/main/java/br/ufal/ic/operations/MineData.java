@@ -65,7 +65,7 @@ public class MineData {
 		for (int i = 1455; i < listHashs.size(); i++) {
 			String h = listHashs.get(i);
 			System.out.println(i + "/" + listHashs.size());
-			String cd = "cd C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/apache_tomcat/metrics/commit_" + h;
+			String cd = "cd " + Paths.PATH_DATA + projectName + "/metrics/commit_" + h;
 			// HashMap<String, Metric> metrics = ReaderUtils.getHashMetricsCSV(
 			// "C:/Users/gurio/Desktop/Pesquisa/Puc/Dados/" + projectName +
 			// "/metrics/commit_" + c + "/");
@@ -110,7 +110,10 @@ public class MineData {
 
 		List<String> files = Filter.filesOnFolder(Paths.PATH_DATA + projectName + "/timeline_init_reported/");
 
+		int count = 0;
 		for (String file : files) {
+
+			System.out.println(count + "/" + files.size());
 
 			String outputFile = "";
 			List<String> fileData = IO.readCSVFileByCollumn(
@@ -121,6 +124,10 @@ public class MineData {
 				boolean flag = true;
 				for (String data : fileData) {
 					if (data.contains(hash)) {
+
+						if (file.contains("org.apache.catalina.webresources.StandardRoot.listWebAppPaths(String)")) {
+							// System.out.println(data + "_" + hash);
+						}
 						outputFile += hash + "," + "true\n";
 						flag = false;
 						break;
@@ -141,7 +148,10 @@ public class MineData {
 			}
 
 			WriterUtils.writeMiningOutput(outputPath + file + ".txt", outputFile);
+			count++;
 		}
+
+		System.out.println("End");
 	}
 
 }

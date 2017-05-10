@@ -30,8 +30,8 @@ public class Collector {
 
 		// List<Integer> missingElements = getElementsNotCollected(projectName);
 
-		int count = 1121;
-		for (int j = 1121; j < bugs.size(); j++) {
+		int count = 0;
+		for (int j = 0; j < bugs.size(); j++) {
 
 			BugInfo bug = bugs.get(j);
 			if (!checkValited(bug)) {
@@ -108,12 +108,12 @@ public class Collector {
 
 	}
 
-	private boolean checkValited(BugInfo bug) {
+	public boolean checkValited(BugInfo bug) {
 
 		List<String> bugFile = IO.readAnyFile(projectName + "/validation/" + bug.getElement() + ".txt");
 
 		for (String line : bugFile) {
-			if (line.contains("false")) {
+			if (line.contains("false") && !line.contains("null")) {
 				return true;
 			}
 		}

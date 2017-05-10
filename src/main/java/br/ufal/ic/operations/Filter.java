@@ -163,6 +163,10 @@ public class Filter {
 				return;
 			}
 
+			/*
+			 * TODO
+			 * Change to another CSV Reader and test
+			 */
 			CSVReader csvReader = new CSVReader(new FileReader(f));
 			List<String[]> myEntries = csvReader.readAll();
 
@@ -170,8 +174,8 @@ public class Filter {
 				if (info[3].contains("AvgCyclomatic")) {
 					continue;
 				}
-				
-				if(info[1].contains("?")){
+
+				if (info[1].contains("?")) {
 					info[1] = info[1].replaceAll("?", "");
 				}
 
@@ -202,8 +206,26 @@ public class Filter {
 		for (int i = 0; i < listHashs.size(); i++) {
 			System.out.println(i + "/" + listHashs.size());
 			String h = listHashs.get(i);
+			
+			
+			String path = Paths.PATH_DATA + projectName + "/metrics2/";
+			File outputDirectory = new File(path);
+
+			if (!outputDirectory.exists()) {
+				if (outputDirectory.mkdir()) {
+				}
+			}
+
+			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+			File outputDirectory2 = new File(pathOutput);
+
+			if (!outputDirectory2.exists()) {
+				if (outputDirectory2.mkdir()) {
+				}
+			}
+			
 			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/",
-					Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/",
+					pathOutput,
 					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
 		}
 
