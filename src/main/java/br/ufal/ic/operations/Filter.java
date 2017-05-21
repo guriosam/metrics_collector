@@ -1,19 +1,17 @@
 package br.ufal.ic.operations;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-
 import br.ufal.ic.json.BugInfo;
-import br.ufal.ic.objects.Metric;
 import br.ufal.ic.utils.IO;
 import br.ufal.ic.utils.Paths;
 
@@ -154,61 +152,94 @@ public class Filter {
 		// HashMap<String, Metric> metrics = new HashMap<String, Metric>();
 		List<String[]> metrics = new ArrayList<String[]>();
 
+		
 		try {
 
 			File f = new File(path + "metrics.csv");
 			File f2 = new File(path2 + "metrics2.csv");
+			BufferedReader reader = null;
+			String csvSplitBy = "\"";
 
 			if (!f.exists()) {
 				return;
 			}
 
-			/*
-			 * TODO
-			 * Change to another CSV Reader and test
-			 */
-			CSVReader csvReader = new CSVReader(new FileReader(f));
-			List<String[]> myEntries = csvReader.readAll();
+			reader = new BufferedReader(new FileReader(f));
+			String line;
 
-			for (String[] info : myEntries) {
-				if (info[3].contains("AvgCyclomatic")) {
+			String[] csvLine = null;
+
+			while ((line = reader.readLine()) != null) {
+				
+				if (line.contains("(")){
+					csvLine = line.split(csvSplitBy); // use Quotes as separator
+					//csvLine[0] = csvLine[0].substring(0, csvLine[0].length()-1);
+					//csvLine[2] = csvLine[2].substring(1, csvLine[2].length());
+														
+				}
+
+				if (line.contains("Kind")){
+					String[] header = line.split(",");
+					metrics.add(header);
 					continue;
+					
 				}
 
-				if (info[1].contains("?")) {
-					info[1] = info[1].replaceAll("?", "");
+				if (csvLine[1].contains("?")){
+					csvLine[1] = csvLine[1].replaceAll("?", "");
 				}
+				
 
-				if (info[0].contains("Method") || info[0].contains("Constructor")) {
-					if (elements.contains(info[1])) {
-						metrics.add(info);
+				
+				
+				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")){
+					
+					for(String j : elements){
+						if (j.contains(csvLine[1])){
+							
+							String[] aux = csvLine[2].split(",");
+							String[] output = new String[aux.length + 2];
+
+							output[0] = csvLine[0];
+							output[1] = "\"" + csvLine[1] + "\"";
+							
+							for (int i = 0 ; i < aux.length; i++){
+								output[2 + i] = aux[i]; // COMMAS HERE
+							}
+							metrics.add(output);
+						}
 					}
+					
 				}
 			}
-
-			CSVWriter csvWriter = new CSVWriter(new FileWriter(f2), ',');
-
-			csvWriter.writeAll(metrics);
-
-			csvWriter.close();
-			csvReader.close();
+						Writer writer = new FileWriter(f2);
+			String out = "";
+			for(String[] s : metrics){
+				for(String ss : s){
+					out += ss + ",";
+				}
+				out = out.substring(0, out.length()-1);
+				out += "\n";
+			}
+			writer.write(out);
+			writer.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-	}
 
-	public void createReducedCSVFile(String projectName) {
+	}	
 
-		List<String> listHashs = IO.readAnyFile("hashs_" + projectName + ".txt");
+	public static void createReducedCSVFile(String projectName){
+
+		List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
 
 		for (int i = 0; i < listHashs.size(); i++) {
 			System.out.println(i + "/" + listHashs.size());
 			String h = listHashs.get(i);
-			
-			
-			String path = Paths.PATH_DATA + projectName + "/metrics2/";
+
+			String path = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
 			File outputDirectory = new File(path);
 
 			if (!outputDirectory.exists()) {
@@ -216,7 +247,7 @@ public class Filter {
 				}
 			}
 
-			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/";
 			File outputDirectory2 = new File(pathOutput);
 
 			if (!outputDirectory2.exists()) {
@@ -224,8 +255,16 @@ public class Filter {
 				}
 			}
 			
-			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/",
-					pathOutput,
+			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+			File outputDirectory3 = new File(pathOutput2);
+
+			if (!outputDirectory3.exists()) {
+				if (outputDirectory3.mkdir()) {
+				}
+			}
+
+
+			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput,
 					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
 		}
 
