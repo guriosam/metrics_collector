@@ -44,13 +44,15 @@ public class Main {
 
 		Collector c = new Collector(projectName);
 
-		BugsOperations bugsOperations = new BugsOperations();
-		List<BugInfo> bugs = bugsOperations.assignBugList(projectName);
-		for (BugInfo bug : bugs) {
-			if(c.checkValited(bug)){
-				System.out.println(bug.getElement());
-			}
-		}
+		// BugsOperations bugsOperations = new BugsOperations();
+		// List<BugInfo> bugs = bugsOperations.assignBugList(projectName);
+		// for (BugInfo bug : bugs) {
+		// if(c.checkValited(bug)){
+		// System.out.println(bug.getElement());
+		// }
+		// }
+
+		Filter.createReducedCSVFile(projectName);
 
 		// c.collectMetricsInProjects(projectName);
 		// c.getElementsNotCollected(projectName);

@@ -150,9 +150,8 @@ public class Filter {
 
 	public static void filterCSVFile(String path, String path2, List<String> elements) {
 		// HashMap<String, Metric> metrics = new HashMap<String, Metric>();
-		List<String[]> metrics = new ArrayList<String[]>();
+		List<String> metrics = new ArrayList<>();
 
-		
 		try {
 
 			File f = new File(path + "metrics.csv");
@@ -170,56 +169,36 @@ public class Filter {
 			String[] csvLine = null;
 
 			while ((line = reader.readLine()) != null) {
-				
-				if (line.contains("(")){
+
+				if (line.contains("(")) {
 					csvLine = line.split(csvSplitBy); // use Quotes as separator
-					//csvLine[0] = csvLine[0].substring(0, csvLine[0].length()-1);
-					//csvLine[2] = csvLine[2].substring(1, csvLine[2].length());
-														
 				}
 
-				if (line.contains("Kind")){
-					String[] header = line.split(",");
-					metrics.add(header);
+				if (line.contains("AvgCyclomatic")) {
+					metrics.add(line);
 					continue;
-					
+
 				}
 
-				if (csvLine[1].contains("?")){
+				if (csvLine[1].contains("?")) {
 					csvLine[1] = csvLine[1].replaceAll("?", "");
 				}
-				
 
-				
-				
-				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")){
-					
-					for(String j : elements){
-						if (j.contains(csvLine[1])){
-							
-							String[] aux = csvLine[2].split(",");
-							String[] output = new String[aux.length + 2];
+				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")) {
 
-							output[0] = csvLine[0];
-							output[1] = "\"" + csvLine[1] + "\"";
-							
-							for (int i = 0 ; i < aux.length; i++){
-								output[2 + i] = aux[i]; // COMMAS HERE
-							}
-							metrics.add(output);
+					for (String j : elements) {
+						if (j.contains(csvLine[1])) {
+							metrics.add(line);
 						}
 					}
-					
+
 				}
 			}
-						Writer writer = new FileWriter(f2);
+			Writer writer = new FileWriter(f2);
+
 			String out = "";
-			for(String[] s : metrics){
-				for(String ss : s){
-					out += ss + ",";
-				}
-				out = out.substring(0, out.length()-1);
-				out += "\n";
+			for (String m : metrics) {
+				out += m + "\n";
 			}
 			writer.write(out);
 			writer.close();
@@ -228,10 +207,9 @@ public class Filter {
 			e.printStackTrace();
 		}
 
+	}
 
-	}	
-
-	public static void createReducedCSVFile(String projectName){
+	public static void createReducedCSVFile(String projectName) {
 
 		List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
 
@@ -254,7 +232,7 @@ public class Filter {
 				if (outputDirectory2.mkdir()) {
 				}
 			}
-			
+
 			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
 			File outputDirectory3 = new File(pathOutput2);
 
@@ -262,7 +240,6 @@ public class Filter {
 				if (outputDirectory3.mkdir()) {
 				}
 			}
-
 
 			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput,
 					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
