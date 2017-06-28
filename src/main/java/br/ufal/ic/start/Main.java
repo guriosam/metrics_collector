@@ -8,6 +8,7 @@ import br.ufal.ic.operations.Collector;
 import br.ufal.ic.operations.Filter;
 import br.ufal.ic.operations.MineData;
 import br.ufal.ic.operations.ReaderUtils;
+import br.ufal.ic.operations.WriterUtils;
 import br.ufal.ic.utils.IO;
 import br.ufal.ic.utils.Paths;
 
@@ -71,7 +72,8 @@ public class Main {
 		
 		//c.methodNotValidated(projectName);
 		
-		//c.changeDelimeters("/media/easy/HD-E1/frança/Pesquisa/workspace/metrics_collector/timeline", ',', ';');
+		WriterUtils w = new WriterUtils();
+		w.convertToJson();
 	}
 
 	/*

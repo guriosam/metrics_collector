@@ -5,8 +5,11 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import br.ufal.ic.objects.Commit;
 import br.ufal.ic.objects.Metric;
+import br.ufal.ic.utils.IO;
 
 public class WriterUtils {
 
@@ -61,22 +64,22 @@ public class WriterUtils {
 	public static void writeMetrics(String path, List<Metric> metrics) {
 
 		try {
-			String text = "Commit; Kind; Name; File; AvgCyclomatic; AvgCyclomaticModified;"
-					+ " AvgCyclomaticStrict; AvgEssential; AvgLine; AvgLineBlank; "
-					+ "AvgLineCode; AvgLineComment; CountClassBase; CountClassCoupled; "
-					+ "CountClassDerived; CountDeclClass; CountDeclClassMethod; "
-					+ "CountDeclClassVariable; CountDeclFile; CountDeclFunction; "
-					+ "CountDeclInstanceMethod; CountDeclInstanceVariable; "
-					+ "CountDeclMethod; CountDeclMethodAll; CountDeclMethodDefault; "
-					+ "CountDeclMethodPrivate; CountDeclMethodProtected; "
-					+ "CountDeclMethodPublic; CountInput; CountLine; "
-					+ "CountLineBlank; CountLineCode; CountLineCodeDecl; "
-					+ "CountLineCodeExe; CountLineComment; CountOutput; CountPath; "
-					+ "CountSemicolon; CountStmt; CountStmtDecl; CountStmtExe; Cyclomatic;"
-					+ " CyclomaticModified; CyclomaticStrict; Essential; MaxCyclomatic; "
-					+ "MaxCyclomaticModified; MaxCyclomaticStrict; MaxEssential; MaxInheritanceTree; "
-					+ "MaxNesting; PercentLackOfCohesion; RatioCommentToCode; SumCyclomatic; "
-					+ "SumCyclomaticModified; SumCyclomaticStrict; SumEssential\n";
+			String text = "Commit, Kind, Name, File, AvgCyclomatic, AvgCyclomaticModified,"
+					+ " AvgCyclomaticStrict, AvgEssential, AvgLine, AvgLineBlank, "
+					+ "AvgLineCode, AvgLineComment, CountClassBase, CountClassCoupled, "
+					+ "CountClassDerived, CountDeclClass, CountDeclClassMethod, "
+					+ "CountDeclClassVariable, CountDeclFile, CountDeclFunction, "
+					+ "CountDeclInstanceMethod, CountDeclInstanceVariable, "
+					+ "CountDeclMethod, CountDeclMethodAll, CountDeclMethodDefault, "
+					+ "CountDeclMethodPrivate, CountDeclMethodProtected, "
+					+ "CountDeclMethodPublic, CountInput, CountLine, "
+					+ "CountLineBlank, CountLineCode, CountLineCodeDecl, "
+					+ "CountLineCodeExe, CountLineComment, CountOutput, CountPath, "
+					+ "CountSemicolon, CountStmt, CountStmtDecl, CountStmtExe, Cyclomatic,"
+					+ " CyclomaticModified, CyclomaticStrict, Essential, MaxCyclomatic, "
+					+ "MaxCyclomaticModified, MaxCyclomaticStrict, MaxEssential, MaxInheritanceTree, "
+					+ "MaxNesting, PercentLackOfCohesion, RatioCommentToCode, SumCyclomatic, "
+					+ "SumCyclomaticModified, SumCyclomaticStrict, SumEssential\n";
 	
 			for (Metric m : metrics) {
 				text += m.getCommit();
@@ -157,5 +160,22 @@ public class WriterUtils {
 				
 			}
 		}
+	public void convertToJson(){
+		try{
+		String path = "C:/Users/Gurio/Desktop/javax.el.BeanELResolver.invoke.txt";
+		List<String> test = IO.readAnyFile(path);
+		Gson gson = new Gson();
+		//gson.toJson(test);
+		String output = "C:/Users/Gurio/Desktop/JSONFILE.txt";
+		
+		File f = new File(output);
+		Writer writer = new FileWriter(f);
+		writer.write(gson.toJson(test));
+		writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		}
+	}
 
 }
