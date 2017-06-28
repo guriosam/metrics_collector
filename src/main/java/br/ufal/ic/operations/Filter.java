@@ -1,6 +1,8 @@
 package br.ufal.ic.operations;
 
 import java.io.BufferedReader;
+
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import br.ufal.ic.json.BugInfo;
+import br.ufal.ic.objects.Metric;
 import br.ufal.ic.utils.IO;
 import br.ufal.ic.utils.Paths;
 
@@ -136,9 +139,10 @@ public class Filter {
 			File f = new File(path);
 
 			File[] files = f.listFiles();
-
-			for (File file : files) {
-				fileNames.add(file.getName().replace(".txt", ""));
+			if(files != null){
+				for (File file : files) {
+					fileNames.add(file.getName().replace(".txt", ""));
+				}
 			}
 
 		} catch (Exception e) {
@@ -147,10 +151,32 @@ public class Filter {
 
 		return fileNames;
 	}
+	
+	public static boolean isFolderEmpty(String path) {
+
+		if (path == null) {
+			System.out.println("Folder name is null");
+		}
+
+		try {
+			
+			File f = new File(path);
+			
+			if(f.list() == null){
+				System.out.println("IS EMPTY!");
+				return true;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+
+	}
 
 	public static void filterCSVFile(String path, String path2, List<String> elements) {
-		// HashMap<String, Metric> metrics = new HashMap<String, Metric>();
-		List<String> metrics = new ArrayList<>();
+
+		List<String> metrics = new ArrayList<String>();
 
 		try {
 
@@ -170,22 +196,18 @@ public class Filter {
 
 			while ((line = reader.readLine()) != null) {
 
-				if (line.contains("(")) {
-					csvLine = line.split(csvSplitBy); // use Quotes as separator
-				}
-
 				if (line.contains("AvgCyclomatic")) {
 					metrics.add(line);
 					continue;
-
 				}
+
+				csvLine = line.split(csvSplitBy); // use Quotes as separator
 
 				if (csvLine[1].contains("?")) {
 					csvLine[1] = csvLine[1].replaceAll("?", "");
 				}
 
 				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")) {
-
 					for (String j : elements) {
 						if (j.contains(csvLine[1])) {
 							metrics.add(line);
@@ -194,6 +216,8 @@ public class Filter {
 
 				}
 			}
+
+			System.out.println("WRITING FILTERED DATA!!!");
 			Writer writer = new FileWriter(f2);
 
 			String out = "";
@@ -202,19 +226,59 @@ public class Filter {
 			}
 			writer.write(out);
 			writer.close();
+			reader.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
+	
+	
+	public static void checkReducedCSVFile(String projectName, List<String> elements){
+		
+
+			try {
+				int control = 0;
+				// get the commit's hash.
+				List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
+				int listSize = listHashs.size();
+				//run each hash
+				for (int i = 0; i < listSize ; i++) {
+					System.out.println(i + "/" + listSize);
+					String h = listHashs.get(i);
+
+					String pathToCheck = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
+					//check if dir is empty
+					if (isFolderEmpty(pathToCheck)) {
+						System.out.println("the hash" + h + "is empty.");
+						
+						String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+						//filter metrics.csv at this hash
+						System.out.println("Filtering!!!");
+						filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2, elements);
+						control++;
+					}
+					
+					
+				}
+				System.out.println("Filtered : " + control);
+			} catch (Exception e) {
+					e.printStackTrace();
+				}
+			
+	}
 
 	public static void createReducedCSVFile(String projectName) {
 
 		List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
-
+		
 		for (int i = 0; i < listHashs.size(); i++) {
-			System.out.println(i + "/" + listHashs.size());
+			//System.out.println(i + "/" + listHashs.size());
+			if(i == listHashs.size() - 1){
+
+				System.out.println("DONE!");
+			}
 			String h = listHashs.get(i);
 
 			String path = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
@@ -229,6 +293,7 @@ public class Filter {
 			File outputDirectory2 = new File(pathOutput);
 
 			if (!outputDirectory2.exists()) {
+				System.out.println("CREATING DIR METRICS2");
 				if (outputDirectory2.mkdir()) {
 				}
 			}
@@ -241,7 +306,7 @@ public class Filter {
 				}
 			}
 
-			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput,
+			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2,
 					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
 		}
 
@@ -251,7 +316,7 @@ public class Filter {
 
 		List<String> elementsToGetHash = IO.readAnyFile(projectName + "/elementsToGetMetrics_" + projectName + ".txt");
 		List<String> commitsList = IO.readAnyFile(projectName + "/commits_repo_table.txt");
-		HashMap<String, String> commitsHash = new HashMap<>();
+		HashMap<String, String> commitsHash = new HashMap<String, String>();
 		for (String commit : commitsList) {
 			String[] commitCollumns = commit.split(",");
 			String c1 = commitCollumns[1].replaceAll(" ", "");

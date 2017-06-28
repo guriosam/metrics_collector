@@ -160,7 +160,7 @@ public class IO {
 
 	}
 
-	public static List<String[]> readCSVFile(String filename) {
+	/*public static List<String[]> readCSVFile(String filename) {
 
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(filename));
@@ -174,14 +174,14 @@ public class IO {
 
 		return new ArrayList<String[]>();
 
-	}
+	}*/
 
 	public static List<String> readCSVFileByCollumn(String filename, int collumn) {
 
 		List<String> fileLines = readAnyFile(filename);
 		
 		
-		List<String> collumnRows = new ArrayList<>();
+		List<String> collumnRows = new ArrayList<String>();
 
 		for (String lineAll : fileLines) {
 			String[] line = lineAll.split(",");

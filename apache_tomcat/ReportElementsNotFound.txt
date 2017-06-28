@@ -1,0 +1,3 @@
+org.apache.tomcat.util.digester.SetRootRule.SetRootRule(Digester,String) -> Parametro deixa de ser (Digester,String) e passa a ser (String, String)
+org.apache.tomcat.util.digester.Rule.end() -> Desapareceu
+

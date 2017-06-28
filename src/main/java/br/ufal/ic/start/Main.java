@@ -7,6 +7,8 @@ import br.ufal.ic.operations.BugsOperations;
 import br.ufal.ic.operations.Collector;
 import br.ufal.ic.operations.Filter;
 import br.ufal.ic.operations.MineData;
+import br.ufal.ic.operations.ReaderUtils;
+import br.ufal.ic.utils.IO;
 import br.ufal.ic.utils.Paths;
 
 public class Main {
@@ -14,7 +16,7 @@ public class Main {
 	public static void main(String[] args) { // TODO Auto-generated method
 
 		String projectName = "apache_tomcat";
-		// String projectName = "apache_derby";
+		//String projectName = "apache_derby";
 
 		/*
 		 * List<String> commitFiles = Filter.filesOnFolder(Paths.PATH_WORKSPACE
@@ -23,16 +25,20 @@ public class Main {
 		 */
 
 		/*
-		 * Steps 1. Collect the pair of hashs of commits, from the real database
-		 * to the ufal database. 2. Collect all metrics.csv from all commits. 3.
-		 * Create the filtered CSV file to help the minning. 4. Collect the
+		 * Steps:
+		 *  1. Collect the pair of hashs of commits, from the real database
+		 * to the ufal database. 
+		 * 2. Collect all metrics.csv from all commits. 
+		 * 3.Create the filtered CSV file to help the minning. 
+		 * 4. Collect the
 		 * historic of metrics in the CSV files for each element of bug.
 		 */
 
 		// r.getOtherHash();
 
 		MineData m = new MineData(projectName);
-		// m.checkMinning();
+		
+		//m.checkMinning();
 
 		// m.mineData();
 
@@ -51,12 +57,21 @@ public class Main {
 		// System.out.println(bug.getElement());
 		// }
 		// }
-
-		Filter.createReducedCSVFile(projectName);
-
-		// c.collectMetricsInProjects(projectName);
-		// c.getElementsNotCollected(projectName);
-
+		Filter f = new Filter();
+		//f.createReducedCSVFile(projectName); //(apache_tomcat: DONE, apache_derby : )
+		
+		//f.checkReducedCSVFile(projectName, ReaderUtils.getElementsWithBug("all_bugs.json", projectName)); //(think its DONE)
+		
+		//c.collectMetricsInProjects(projectName); //(apache tomcat: DONE, not writted everything, apache derby:)
+		//c.collectMetricsInProjects3(projectName);
+		//Filter f = new Filter();
+		//f.checkReducedCSVFile(projectName, ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
+		
+		//c.getElementsNotCollected(projectName);
+		
+		//c.methodNotValidated(projectName);
+		
+		//c.changeDelimeters("/media/easy/HD-E1/frança/Pesquisa/workspace/metrics_collector/timeline", ',', ';');
 	}
 
 	/*
@@ -88,3 +103,4 @@ public class Main {
 	 * random).toString(32); }
 	 */
 }
+

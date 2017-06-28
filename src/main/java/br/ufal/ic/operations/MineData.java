@@ -33,6 +33,7 @@ public class MineData {
 		 * "java.testing.org.apache.derbyTesting.junit.CleanDatabaseTestSetup.setUp()"]
 		 * }
 		 */
+		 
 		List<BugInfo> jsonBugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
 		List<String> listHashs = IO.readAnyFile("hashs_" + projectName + ".txt");
@@ -108,50 +109,59 @@ public class MineData {
 
 	public void checkMinning() {
 
-		List<String> files = Filter.filesOnFolder(Paths.PATH_DATA + projectName + "/timeline_init_reported/");
+		List<String> files = Filter.filesOnFolder(Paths.PATH_DATA + "/" + projectName + "/timeline_init_reported/");
+		System.out.println(files.size());
 
 		int count = 0;
 		for (String file : files) {
-
-			System.out.println(count + "/" + files.size());
-
-			String outputFile = "";
-			List<String> fileData = IO.readCSVFileByCollumn(
-					Paths.PATH_DATA + projectName + "/timeline_init_reported/" + file + ".txt", 0);
-
-			List<String> hashs = IO.readAnyFile(projectName + "/hashs_by_element/" + file + ".txt");
-			for (String hash : hashs) {
-				boolean flag = true;
-				for (String data : fileData) {
-					if (data.contains(hash)) {
-
-						if (file.contains("org.apache.catalina.webresources.StandardRoot.listWebAppPaths(String)")) {
-							// System.out.println(data + "_" + hash);
+			
+			//String notValidatedPath = "/media/easy/HD-E1/frança/Pesquisa/workspace/metrics_collector/apache_tomcat/elementsNotValidated.txt";
+			//List<String> elementsNotValidated = IO.readAnyFile(notValidatedPath);
+			
+			//if(!(elementsNotValidated.contains(file))){ //do not enter if method have false (file: elementsNotValidated)
+				System.out.println(count + "/" + files.size());
+	
+				String outputFile = "";
+				List<String> fileData = IO.readCSVFileByCollumn(
+						Paths.PATH_DATA + "/" + projectName + "/timeline_init_reported/" + file + ".txt", 0); //list of hashs
+	
+				List<String> hashs = IO.readAnyFile(projectName + "/hashs_by_element/" + file + ".txt");
+				
+				
+				for (String hash : hashs) {
+					boolean flag = true;
+					
+					for (String data : fileData) {
+						if (data.contains(hash)) {
+	
+							//if (file.contains("org.apache.catalina.webresources.StandardRoot.listWebAppPaths(String)")) {
+								// System.out.println(data + "_" + hash);
+							//}
+							outputFile += hash + "," + "true\n";
+							flag = false;
+							break;
 						}
-						outputFile += hash + "," + "true\n";
-						flag = false;
-						break;
+					}
+					if (flag) {
+						outputFile += hash + "," + "false\n";
+					}
+	
+				}
+	
+				String outputPath = projectName + "/validation/";
+				File outputDirectory = new File(outputPath);
+	
+				if (!outputDirectory.exists()) {
+					if (outputDirectory.mkdir()) {
 					}
 				}
-				if (flag) {
-					outputFile += hash + "," + "false\n";
-				}
-
-			}
-
-			String outputPath = projectName + "/validation/";
-			File outputDirectory = new File(outputPath);
-
-			if (!outputDirectory.exists()) {
-				if (outputDirectory.mkdir()) {
-				}
-			}
-
-			WriterUtils.writeMiningOutput(outputPath + file + ".txt", outputFile);
-			count++;
+	
+				WriterUtils.writeMiningOutput(outputPath + file + ".txt", outputFile);
+				count++;
+			//}
 		}
 
-		System.out.println("End");
+		System.out.println("End" + count);
 	}
 
 }
