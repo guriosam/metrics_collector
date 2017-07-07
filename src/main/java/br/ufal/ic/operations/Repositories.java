@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufal.ic.objects.Commit;
-import br.ufal.ic.utils.IO;
+import br.ufal.ic.utils.IOUtils;
 import br.ufal.ic.utils.Paths;
+import br.ufal.ic.utils.WriterUtils;
+import br.ufal.ic.utils.FileUtils;
 
 public class Repositories {
 
@@ -48,16 +50,16 @@ public class Repositories {
 	 */
 	public void getGitPairToRepositoryHash() {
 
-		ArrayList<Commit> commit = new ArrayList<Commit>();
-		commit = IO.readCommitFile("commits.csv");
+		List<Commit> commit = new ArrayList<Commit>();
+		commit = IOUtils.readCommitList("commits.csv");
 
 		String path = Paths.PATH_WORKSPACE + projectName + "/repositoryCommits/";
 
-		List<String> commitFiles = Filter.filesOnFolder(path);
+		List<String> commitFiles = FileUtils.filesOnFolder(path);
 
 		for (String commitFile : commitFiles) {
 			List<String> repositoryCommitFile = new ArrayList<String>();
-			repositoryCommitFile = IO.readAnyFile(path + commitFile + ".txt");
+			repositoryCommitFile = IOUtils.readAnyFile(path + commitFile + ".txt");
 
 			for (int i = 0; i < commit.size(); i++) {
 				for (int j = 0; j < repositoryCommitFile.size(); j++) {
@@ -88,12 +90,12 @@ public class Repositories {
 	public void checkoutProject() {
 
 		String path = Paths.PATH_WORKSPACE + projectName + "/repositoryCommits/";
-		List<String> files = Filter.filesOnFolder(path);
+		List<String> files = FileUtils.filesOnFolder(path);
 
 		String currentWorkspace = Paths.PATH_REPOSITORIES + projectName + "/";
 
 		for (String file : files) {
-			List<String> commits = IO.readAnyFile(path + file);
+			List<String> commits = IOUtils.readAnyFile(path + file);
 			int count = 0;
 			for (String c : commits) {
 				String[] com = c.split(";");
@@ -135,7 +137,7 @@ public class Repositories {
 					 * 
 					 * else, fill with the complete path to the subfolder.
 					 */
-					IO.copyMetricsFile("", outputDirectory + "/commit_" + com[0] + "/", "metrics.csv");
+					IOUtils.copyMetricsFile("", outputDirectory + "/commit_" + com[0] + "/", "metrics.csv");
 					System.out.println(count + "/" + commits.size());
 				} catch (Exception e) {
 					e.printStackTrace();

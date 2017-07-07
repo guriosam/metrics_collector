@@ -1,1 +1,10 @@
 /target/
+/apache_derby/timeline/
+/apache_derby/timeline - old/
+/apache_derby/validation_metrics2/
+/apache_derby/hashs_by_element/
+
+/apache_tomcat/timeline/
+/apache_tomcat/validation/
+/apache_tomcat/validation_metrics2/
+/apache_tomcat/hashs_by_element/

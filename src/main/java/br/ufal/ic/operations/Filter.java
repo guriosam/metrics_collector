@@ -1,8 +1,6 @@
 package br.ufal.ic.operations;
 
 import java.io.BufferedReader;
-
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,22 +11,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import br.ufal.ic.json.BugInfo;
-import br.ufal.ic.objects.Metric;
-import br.ufal.ic.utils.IO;
+import br.ufal.ic.objects.Bug;
+import br.ufal.ic.utils.IOUtils;
+import br.ufal.ic.utils.JSONUtils;
 import br.ufal.ic.utils.Paths;
+import br.ufal.ic.utils.ReaderUtils;
+import br.ufal.ic.utils.WriterUtils;
+import br.ufal.ic.utils.FileUtils;
 
 public class Filter {
 
 	public void filterMinedData(String projectName) {
 
-		List<String> mined = IO.readAnyFile("mined_data_" + projectName + ".txt");
+		List<String> mined = IOUtils.readAnyFile("mined_data_" + projectName + ".txt");
 
-		List<BugInfo> jsonBugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
+		List<Bug> jsonBugs = JSONUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
 		Set<String> set = new HashSet<String>();
 
-		for (BugInfo bug : jsonBugs) {
+		for (Bug bug : jsonBugs) {
 
 			for (String element : bug.getElements()) {
 
@@ -50,7 +51,7 @@ public class Filter {
 		HashSet<String> setElemeents = new HashSet<String>();
 		HashSet<String> nullElements = new HashSet<String>();
 
-		for (BugInfo b : jsonBugs) {
+		for (Bug b : jsonBugs) {
 
 			for (String s : b.getElements()) {
 				if (set.contains(s)) {
@@ -109,12 +110,12 @@ public class Filter {
 	}
 
 	public void getReportedCommitOfMissingFiles(String projectName) {
-		List<String> missingFiles = IO.readAnyFile("elementsMissingMetrics.txt");
-		List<BugInfo> bugs = ReaderUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
+		List<String> missingFiles = IOUtils.readAnyFile("elementsMissingMetrics.txt");
+		List<Bug> bugs = JSONUtils.writeBugJsonIntoBugList("all_bugs.json", projectName);
 
 		for (String mf : missingFiles) {
 			String[] mfs = mf.split("%");
-			for (BugInfo b : bugs) {
+			for (Bug b : bugs) {
 				for (String e : b.getElements()) {
 					if (e.contains(mfs[0])) {
 						System.out.println(mf + "%" + b.getOrder_reported());
@@ -123,54 +124,6 @@ public class Filter {
 				}
 			}
 		}
-
-	}
-
-	public static List<String> filesOnFolder(String path) {
-
-		List<String> fileNames = new ArrayList<String>();
-
-		if (path == null) {
-			System.out.println("Folder name is null");
-		}
-
-		try {
-			// filesNamesPath = path;
-			File f = new File(path);
-
-			File[] files = f.listFiles();
-			if(files != null){
-				for (File file : files) {
-					fileNames.add(file.getName().replace(".txt", ""));
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return fileNames;
-	}
-	
-	public static boolean isFolderEmpty(String path) {
-
-		if (path == null) {
-			System.out.println("Folder name is null");
-		}
-
-		try {
-			
-			File f = new File(path);
-			
-			if(f.list() == null){
-				System.out.println("IS EMPTY!");
-				return true;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
 
 	}
 
@@ -203,21 +156,22 @@ public class Filter {
 
 				csvLine = line.split(csvSplitBy); // use Quotes as separator
 
-				if (csvLine[1].contains("?")) {
-					csvLine[1] = csvLine[1].replaceAll("?", "");
-				}
+				// if (csvLine[1].contains("?")) {
+				// csvLine[1] = csvLine[1].replaceAll("?", "");
+				// }
 
 				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")) {
 					for (String j : elements) {
 						if (j.contains(csvLine[1])) {
-							metrics.add(line);
+							if (!metrics.contains(line)) {
+								metrics.add(line);
+							}
 						}
 					}
 
 				}
 			}
 
-			System.out.println("WRITING FILTERED DATA!!!");
 			Writer writer = new FileWriter(f2);
 
 			String out = "";
@@ -233,68 +187,64 @@ public class Filter {
 		}
 
 	}
-	
-	
-	public static void checkReducedCSVFile(String projectName, List<String> elements){
-		
 
-			try {
-				int control = 0;
-				// get the commit's hash.
-				List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
-				int listSize = listHashs.size();
-				//run each hash
-				for (int i = 0; i < listSize ; i++) {
-					System.out.println(i + "/" + listSize);
-					String h = listHashs.get(i);
+	public static void checkReducedCSVFile(String projectName, List<String> elements) {
 
-					String pathToCheck = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
-					//check if dir is empty
-					if (isFolderEmpty(pathToCheck)) {
-						System.out.println("the hash" + h + "is empty.");
-						
-						String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
-						//filter metrics.csv at this hash
-						System.out.println("Filtering!!!");
-						filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2, elements);
-						control++;
-					}
-					
-					
+		try {
+			int control = 0;
+			// get the commit's hash.
+			List<String> listHashs = IOUtils.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
+			int listSize = listHashs.size();
+			// run each hash
+			for (int i = 0; i < listSize; i++) {
+				System.out.println(i + "/" + listSize);
+				String h = listHashs.get(i);
+
+				String pathToCheck = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
+
+				if (FileUtils.isFolderEmpty(pathToCheck)) {
+					System.out.println("the hash" + h + "is empty.");
+
+					String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+					// filter metrics.csv at this hash
+					System.out.println("Filtering!!!");
+					filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2, elements);
+					control++;
 				}
-				System.out.println("Filtered : " + control);
-			} catch (Exception e) {
-					e.printStackTrace();
-				}
-			
+
+			}
+			System.out.println("Filtered : " + control);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void createReducedCSVFile(String projectName) {
 
-		List<String> listHashs = IO.readAnyFile(projectName + "/hashs_" + projectName + ".txt");
-		
-		for (int i = 0; i < listHashs.size(); i++) {
-			//System.out.println(i + "/" + listHashs.size());
-			if(i == listHashs.size() - 1){
+		List<String> listHashs = IOUtils.readAnyFile(projectName + "/hashs.txt");
 
-				System.out.println("DONE!");
-			}
+		for (int i = 0; i < listHashs.size(); i++) {
+			System.out.println(i + "/" + listHashs.size());
 			String h = listHashs.get(i);
 
-			String path = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
-			File outputDirectory = new File(path);
+			if (h.contains("null")) {
+				continue;
+			}
 
-			if (!outputDirectory.exists()) {
-				if (outputDirectory.mkdir()) {
-				}
+			String path = Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/";
+			File inputDirectory = new File(path);
+
+			if (!inputDirectory.exists()) {
+				System.out.println("Input Path not exists: " + path);
+				continue;
 			}
 
 			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/";
-			File outputDirectory2 = new File(pathOutput);
+			File outputDirectory = new File(pathOutput);
 
-			if (!outputDirectory2.exists()) {
-				System.out.println("CREATING DIR METRICS2");
-				if (outputDirectory2.mkdir()) {
+			if (!outputDirectory.exists()) {
+				if (outputDirectory.mkdir()) {
 				}
 			}
 
@@ -314,15 +264,24 @@ public class Filter {
 
 	public static void makeHashFileByElement(String projectName) {
 
-		List<String> elementsToGetHash = IO.readAnyFile(projectName + "/elementsToGetMetrics_" + projectName + ".txt");
-		List<String> commitsList = IO.readAnyFile(projectName + "/commits_repo_table.txt");
+		List<String> elementsToGetHash = IOUtils.readAnyFile(projectName + "/elementsToGetMetrics.txt");
+		List<String> commitsList = IOUtils.readAnyFile(projectName + "/commits_repo_table.txt");
+
+		String outputPath = projectName + "/hashs_by_element/";
+		File outputDirectory = new File(outputPath);
+
+		if (!outputDirectory.exists()) {
+			if (outputDirectory.mkdir()) {
+			}
+		}
+
 		HashMap<String, String> commitsHash = new HashMap<String, String>();
 		for (String commit : commitsList) {
 			String[] commitCollumns = commit.split(",");
-			String c1 = commitCollumns[1].replaceAll(" ", "");
-			c1 = c1.replaceAll("\n", "");
+			String c1 = commitCollumns[1].replace(" ", "");
+			c1 = c1.replace("\n", "");
 			String c3 = commitCollumns[3].replace(" ", "");
-			c3 = c3.replaceAll("\n", "");
+			c3 = c3.replace("\n", "");
 			// System.out.println(c1);
 			commitsHash.put(c1, c3);
 		}
@@ -340,16 +299,8 @@ public class Filter {
 
 			String outputFile = "";
 
-			for (double i = startCommit + 1; i <= endCommit; i++) {
+			for (double i = startCommit + 1; i <= endCommit + 1; i++) {
 				outputFile += commitsHash.get(i + "") + "\n";
-			}
-
-			String outputPath = projectName + "/hashs_by_element/";
-			File outputDirectory = new File(outputPath);
-
-			if (!outputDirectory.exists()) {
-				if (outputDirectory.mkdir()) {
-				}
 			}
 
 			WriterUtils.writeMiningOutput(outputPath + elementCollumns[0] + ".txt", outputFile);
