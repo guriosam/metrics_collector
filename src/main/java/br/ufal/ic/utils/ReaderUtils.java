@@ -186,8 +186,6 @@ public class ReaderUtils {
 
 	}
 	
-	
-
 	public static ArrayList<Metric> getListMetricsCSV(String path, String commit) {
 		ArrayList<Metric> metrics = new ArrayList<Metric>();
 
@@ -279,43 +277,4 @@ public class ReaderUtils {
 
 	}
 
-	public static List<String> getElementsWithBug(String path, String projectName) {
-
-		List<String> bugs = new ArrayList<String>();
-
-		try {
-			// Get Gson object
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-			// read JSON file data as String
-			String fileData = new String(Files.readAllBytes(Paths.get(path)));
-
-			// parse json string to object
-			List<LinkedTreeMap> treeBugs = gson.fromJson(fileData, List.class);
-
-			for (LinkedTreeMap b : treeBugs) {
-				if (b.get("project").equals(projectName)) {
-					Bug bug = new Bug();
-					bug.setElements((List) b.get("elements"));
-
-					for (String s : bug.getElements()) {
-
-						String e = s;
-						if (e.contains("org.apache")) {
-							e = e.substring(e.indexOf("org.apache"));
-						}
-						if (e.contains("javax.")) {
-							e = e.substring(e.indexOf("javax"));
-						}
-						bugs.add(e);
-					}
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return bugs;
-	}
 }

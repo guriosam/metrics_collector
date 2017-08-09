@@ -4,6 +4,7 @@ import java.util.List;
 
 import br.ufal.ic.objects.Bug;
 import br.ufal.ic.operations.Filter;
+import br.ufal.ic.operations.Repositories;
 import br.ufal.ic.operations.catalog.MineData;
 import br.ufal.ic.operations.collect.Collector;
 import br.ufal.ic.operations.validation.Validator;
@@ -18,9 +19,16 @@ public class Main {
 	public static void main(String[] args) { // TODO Auto-generated method
 
 		// String projectName = "apache_tomcat";
-		String projectName = "apache_derby";
+		String projectName = "apache_ant";
+		// String projectName = "apache_derby";
 
-		//Filter.makeHashFileByElement(projectName);
+		Filter.getMissingHashs(projectName);
+		//Filter.createReducedCSVFile(projectName);
+
+		// Filter.makeHashFileByElement(projectName);
+
+		//Filter.filterBugListByProject(projectName);
+		//Repositories.checkoutProject(projectName);
 
 		/*
 		 * Steps: 1. Collect the pair of hashs of commits, from the real
@@ -45,17 +53,9 @@ public class Main {
 		// Filter.filterMinedData("apache_tomcat");
 
 		Collector c = new Collector(projectName);
-		c.collectMetricsInProjects(projectName);
+		// c.collectMetricsInProjects(projectName);
 
-		// BugsOperations bugsOperations = new BugsOperations();
-		// List<BugInfo> bugs = bugsOperations.assignBugList(projectName);
-		// for (BugInfo bug : bugs) {
-		// if(c.checkValited(bug)){
-		// System.out.println(bug.getElement());
-		// }
-		// }
-		// Filter.createReducedCSVFile(projectName);
-		//Validator.validateExistence(projectName);
+		// Validator.validateExistence(projectName);
 
 		// f.checkReducedCSVFile(projectName,
 		// ReaderUtils.getElementsWithBug("all_bugs.json", projectName));

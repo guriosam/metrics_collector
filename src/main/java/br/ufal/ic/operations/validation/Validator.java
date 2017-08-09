@@ -121,4 +121,18 @@ public class Validator {
 		IOUtils.writeAnyFile(projectName + "/validation.csv", out);
 	}
 
+	private static void verifyAffectedBy(String projectName, String type){
+		
+		String file = "";
+		
+		switch(type){
+		case "NOT_FOUND":
+			file = "elementsNotFound.txt";
+			break;
+		case "MISSING_METRICS":
+			file = "";
+			break;
+		}
+		
+	}
 }

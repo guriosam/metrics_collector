@@ -87,15 +87,17 @@ public class Repositories {
 
 	/************************ STEP 2 ***********************/
 
-	public void checkoutProject() {
+	public static void checkoutProject(String projectName) {
 
-		String path = Paths.PATH_WORKSPACE + projectName + "/repositoryCommits/";
+		String path = Paths.PATH_WORKSPACE + projectName + "/repository_commits/";
 		List<String> files = FileUtils.filesOnFolder(path);
 
 		String currentWorkspace = Paths.PATH_REPOSITORIES + projectName + "/";
 
+		System.out.println(files.size());
+
 		for (String file : files) {
-			List<String> commits = IOUtils.readAnyFile(path + file);
+			List<String> commits = IOUtils.readAnyFile(path + file + ".txt");
 			int count = 0;
 			for (String c : commits) {
 				String[] com = c.split(";");
@@ -106,11 +108,13 @@ public class Repositories {
 					}
 				}
 
-				try {
+				if (count == 0) {
+					IOUtils.copyMetricsFile("", outputDirectory + "/commit_" + com[1] + "/", "metrics.csv");
+					count++;
+					continue;
+				}
 
-					/*
-					 * TODO Find a way to give a cd command before running it.
-					 */
+				try {
 					String cmd = "git checkout -f " + com[0];
 
 					Runtime run = Runtime.getRuntime();
@@ -130,14 +134,7 @@ public class Repositories {
 						System.out.println(s);
 					}
 
-					/*
-					 * if you are running this in some of the subfolders of
-					 * Paths.PATH_REPOSITORIES + projectName directory leave the
-					 * first parameter as a blank string
-					 * 
-					 * else, fill with the complete path to the subfolder.
-					 */
-					IOUtils.copyMetricsFile("", outputDirectory + "/commit_" + com[0] + "/", "metrics.csv");
+					IOUtils.copyMetricsFile("", outputDirectory + "/commit_" + com[1] + "/", "metrics.csv");
 					System.out.println(count + "/" + commits.size());
 				} catch (Exception e) {
 					e.printStackTrace();

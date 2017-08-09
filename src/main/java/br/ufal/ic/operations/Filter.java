@@ -17,9 +17,26 @@ import br.ufal.ic.utils.JSONUtils;
 import br.ufal.ic.utils.Paths;
 import br.ufal.ic.utils.ReaderUtils;
 import br.ufal.ic.utils.WriterUtils;
+import br.ufal.ic.utils.BugUtils;
 import br.ufal.ic.utils.FileUtils;
 
 public class Filter {
+
+	public static void getMissingHashs(String projectName) {
+
+		List<String> hashsResults = IOUtils.readAnyFile(projectName + "/hashs_origin.txt");
+		List<String> hashsResultsFull = IOUtils.readAnyFile(projectName + "/hashs_origin_full.txt");
+		List<String> missing = new ArrayList<>();
+
+		for (String hRF : hashsResultsFull) {
+			if (!hashsResults.contains(hRF)) {
+				missing.add(hRF);
+			}
+		}
+
+		IOUtils.writeAnyFile(projectName + "/missing.txt", missing);
+
+	}
 
 	public void filterMinedData(String projectName) {
 
@@ -134,7 +151,7 @@ public class Filter {
 		try {
 
 			File f = new File(path + "metrics.csv");
-			File f2 = new File(path2 + "metrics2.csv");
+			File f2 = new File(path2 + "metrics3.csv");
 			BufferedReader reader = null;
 			String csvSplitBy = "\"";
 
@@ -156,10 +173,6 @@ public class Filter {
 
 				csvLine = line.split(csvSplitBy); // use Quotes as separator
 
-				// if (csvLine[1].contains("?")) {
-				// csvLine[1] = csvLine[1].replaceAll("?", "");
-				// }
-
 				if (csvLine[0].contains("Method") || csvLine[0].contains("Constructor")) {
 					for (String j : elements) {
 						if (j.contains(csvLine[1])) {
@@ -172,12 +185,19 @@ public class Filter {
 				}
 			}
 
+			if (metrics.size() <= 1) {
+				File outputDirectory3 = new File(path2);
+				outputDirectory3.delete();
+				return;
+			}
+
 			Writer writer = new FileWriter(f2);
 
 			String out = "";
 			for (String m : metrics) {
 				out += m + "\n";
 			}
+
 			writer.write(out);
 			writer.close();
 			reader.close();
@@ -222,7 +242,7 @@ public class Filter {
 
 	public static void createReducedCSVFile(String projectName) {
 
-		List<String> listHashs = IOUtils.readAnyFile(projectName + "/hashs.txt");
+		List<String> listHashs = IOUtils.readAnyFile(projectName + "/hashs_origin.txt");
 
 		for (int i = 0; i < listHashs.size(); i++) {
 			System.out.println(i + "/" + listHashs.size());
@@ -240,7 +260,7 @@ public class Filter {
 				continue;
 			}
 
-			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/";
+			String pathOutput = Paths.PATH_DATA + projectName + "/metrics3/";
 			File outputDirectory = new File(pathOutput);
 
 			if (!outputDirectory.exists()) {
@@ -248,7 +268,7 @@ public class Filter {
 				}
 			}
 
-			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + h + "/";
+			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics3/commit_" + h + "/";
 			File outputDirectory3 = new File(pathOutput2);
 
 			if (!outputDirectory3.exists()) {
@@ -257,7 +277,9 @@ public class Filter {
 			}
 
 			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2,
-					ReaderUtils.getElementsWithBug("all_bugs.json", projectName));
+					// ReaderUtils.getElementsWithBug("all_bugs.json",
+					// projectName)
+					IOUtils.readAnyFile(projectName + "/elements.txt"));
 		}
 
 	}
@@ -307,5 +329,13 @@ public class Filter {
 			count++;
 		}
 
+	}
+
+	public static void filterBugListByProject(String projectName) {
+		List<String> bugIds = IOUtils.readAnyFile(projectName + "/ids.txt");
+
+		List<String> projectBugs = JSONUtils.getElementsById("all_bugs.json", bugIds);
+
+		IOUtils.writeAnyFile(projectName + "/elements.txt", projectBugs);
 	}
 }
