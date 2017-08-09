@@ -19,28 +19,29 @@ public class Main {
 	public static void main(String[] args) { // TODO Auto-generated method
 
 		// String projectName = "apache_tomcat";
-		String projectName = "apache_ant";
-		// String projectName = "apache_derby";
+		//String projectName = "apache_ant";
+		String projectName = "apache_derby";
 
-		Filter.getMissingHashs(projectName);
+		//Filter.getMissingHashs(projectName);
 		//Filter.createReducedCSVFile(projectName);
-
+		Filter.filterBugListByProject(projectName);
 		// Filter.makeHashFileByElement(projectName);
 
 		//Filter.filterBugListByProject(projectName);
 		//Repositories.checkoutProject(projectName);
 
 		/*
-		 * Steps: 1. Collect the pair of hashs of commits, from the real
-		 * database to the ufal database. 2. Collect all metrics.csv from all
-		 * commits. 3.Create the filtered CSV file to help the minning. 4.
-		 * Collect the historic of metrics in the CSV files for each element of
+		 * Steps: 
+		 *      1. Collect the pair of hashs of commits, from the real database to the ufal database. 
+		 * 		2. Collect all metrics.csv from all commits. 
+		 * 		3.Create the filtered CSV file to help the minning. 
+		 * 		4.Collect the historic of metrics in the CSV files for each element of
 		 * bug.
 		 */
 
 		// r.getOtherHash();
 
-		MineData m = new MineData(projectName);
+		//MineData m = new MineData(projectName);
 
 		// m.checkMinning();
 
@@ -49,10 +50,12 @@ public class Main {
 		// m.checkoutProject();
 
 		// Filter.getReportedCommitOfMissingFiles();
-		// Filter.filterMinedData("apache_derby");
+		//Filter.filterMinedData("apache_derby");
 		// Filter.filterMinedData("apache_tomcat");
-
-		Collector c = new Collector(projectName);
+		//------Filter.createReducedCSVFile(projectName);
+		
+		
+		//Collector c = new Collector(projectName);
 		// c.collectMetricsInProjects(projectName);
 
 		// Validator.validateExistence(projectName);

@@ -151,7 +151,7 @@ public class Filter {
 		try {
 
 			File f = new File(path + "metrics.csv");
-			File f2 = new File(path2 + "metrics3.csv");
+			File f2 = new File(path2 + "metrics2.csv");
 			BufferedReader reader = null;
 			String csvSplitBy = "\"";
 
@@ -242,11 +242,14 @@ public class Filter {
 
 	public static void createReducedCSVFile(String projectName) {
 
-		List<String> listHashs = IOUtils.readAnyFile(projectName + "/hashs_origin.txt");
+		List<String> listHashsOrigin = IOUtils.readAnyFile(projectName + "/hashs_origin.txt");
 
-		for (int i = 0; i < listHashs.size(); i++) {
-			System.out.println(i + "/" + listHashs.size());
-			String h = listHashs.get(i);
+		List<String> listHashBase = IOUtils.readAnyFile(projectName + "/hashs_database.txt");
+		
+		for (int i = 0; i < listHashsOrigin.size(); i++) {
+			System.out.println(i + "/" + listHashsOrigin.size());
+			String h = listHashsOrigin.get(i);
+			String hash = listHashBase.get(i);
 
 			if (h.contains("null")) {
 				continue;
@@ -260,7 +263,7 @@ public class Filter {
 				continue;
 			}
 
-			String pathOutput = Paths.PATH_DATA + projectName + "/metrics3/";
+			String pathOutput = Paths.PATH_DATA + projectName + "/metrics2/";
 			File outputDirectory = new File(pathOutput);
 
 			if (!outputDirectory.exists()) {
@@ -268,7 +271,7 @@ public class Filter {
 				}
 			}
 
-			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics3/commit_" + h + "/";
+			String pathOutput2 = Paths.PATH_DATA + projectName + "/metrics2/commit_" + hash + "/";
 			File outputDirectory3 = new File(pathOutput2);
 
 			if (!outputDirectory3.exists()) {
@@ -276,10 +279,10 @@ public class Filter {
 				}
 			}
 
-			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + h + "/", pathOutput2,
+			filterCSVFile(Paths.PATH_DATA + projectName + "/metrics/commit_" + hash + "/", pathOutput2,
 					// ReaderUtils.getElementsWithBug("all_bugs.json",
 					// projectName)
-					IOUtils.readAnyFile(projectName + "/elements.txt"));
+					IOUtils.readAnyFile(projectName + "/elementsToGetMetrics.txt"));
 		}
 
 	}
@@ -332,6 +335,12 @@ public class Filter {
 	}
 
 	public static void filterBugListByProject(String projectName) {
+		List<String> projectBugs = JSONUtils.getElementsByProject("all_bugs.json", projectName);
+
+		IOUtils.writeAnyFile(projectName + "/elements.txt", projectBugs);
+	}
+	
+	public static void filterBugListById(String projectName) {
 		List<String> bugIds = IOUtils.readAnyFile(projectName + "/ids.txt");
 
 		List<String> projectBugs = JSONUtils.getElementsById("all_bugs.json", bugIds);

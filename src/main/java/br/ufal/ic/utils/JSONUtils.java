@@ -68,7 +68,9 @@ public class JSONUtils {
 						if (e.contains("javax.")) {
 							e = e.substring(e.indexOf("javax"));
 						}
-						bugs.add(e);
+						if (!bugs.contains(e)) {
+							bugs.add(e);
+						}
 					}
 				}
 			}
